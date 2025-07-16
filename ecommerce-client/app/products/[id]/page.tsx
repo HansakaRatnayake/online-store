@@ -7,33 +7,33 @@ import ProductReviews from "@/components/products/product-reviews"
 import LoadingSpinner from "@/components/ui/loading-spinner"
 
 interface ProductPageProps {
-  params: {
-    id: string
-  }
+  params: Promise<{ id: string }>
 }
 
-export default function ProductPage({ params }: ProductPageProps) {
+export default async function ProductPage({ params }: ProductPageProps) {
+  const { id } = await params; // Await params to resolve the id
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Suspense fallback={<LoadingSpinner />}>
-          <ProductDetails productId={params.id} />
-        </Suspense>
-
-        <div className="mt-16">
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Suspense fallback={<LoadingSpinner />}>
-            <ProductReviews productId={params.id} />
+            <ProductDetails productId={id} />
           </Suspense>
-        </div>
 
-        <div className="mt-16">
-          <Suspense fallback={<LoadingSpinner />}>
-            <RelatedProducts productId={params.id} />
-          </Suspense>
-        </div>
-      </main>
-      <Footer />
-    </div>
+          <div className="mt-16">
+            <Suspense fallback={<LoadingSpinner />}>
+              <ProductReviews productId={id} />
+            </Suspense>
+          </div>
+
+          <div className="mt-16">
+            <Suspense fallback={<LoadingSpinner />}>
+              <RelatedProducts productId={id} />
+            </Suspense>
+          </div>
+        </main>
+        <Footer />
+      </div>
   )
 }

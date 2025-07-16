@@ -18,6 +18,12 @@ const productSchema = new Schema({
     description: String,
     features: [String],
     specifications: Object,
+    colors: [String],
+    sizes: [String],
+    shipping: {
+        free: Boolean,
+        estimatedDays: String,
+    },
 });
 
 export const Product =
