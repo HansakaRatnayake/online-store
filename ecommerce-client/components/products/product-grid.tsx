@@ -1,72 +1,78 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Star, Heart, ShoppingCart, Grid, List } from "lucide-react"
-import { useCart } from "@/components/providers/cart-provider"
-import { useToast } from "@/hooks/use-toast"
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Star, Heart, ShoppingCart, Grid, List } from "lucide-react";
+import { useCart } from "@/components/providers/cart-provider";
+import { useToast } from "@/hooks/use-toast";
 
 interface Product {
-  id: number
-  name: string
-  price: number
-  originalPrice: number
-  rating: number
-  reviews: number
-  image: string
-  badge?: string
-  category: string
-  brand: string
-  inStock: boolean
-  description?: string
+  id: number;
+  name: string;
+  price: number;
+  originalPrice: number;
+  rating: number;
+  reviews: number;
+  image: string;
+  badge?: string;
+  category: string;
+  brand: string;
+  inStock: boolean;
+  description?: string;
+  shipping: { free: boolean; estimatedDays: string }; // Add shipping
 }
 
 interface ProductGridProps {
-  products: Product[]
-  page: number
-  setPage: (page: number) => void
-  totalPages: number
+  products: Product[];
+  page: number;
+  setPage: (page: number) => void;
+  totalPages: number;
 }
 
 export default function ProductGrid({ products, page, setPage, totalPages }: ProductGridProps) {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-  const [sortBy, setSortBy] = useState("featured")
-  const { addItem } = useCart()
-  const { toast } = useToast()
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [sortBy, setSortBy] = useState("featured");
+  const { addToCart } = useCart(); // Use addToCart instead of addItem
+  const { toast } = useToast();
 
   const handleAddToCart = (product: Product) => {
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      quantity: 1,
-    })
+    addToCart(
+        {
+          id: product.id.toString(), // Cast number to string to match CartItem
+          name: product.name,
+          price: product.price,
+          image: product.image,
+          category: product.category,
+          brand: product.brand,
+          shipping: product.shipping,
+        },
+        1 // Pass quantity as second argument
+    );
     toast({
       title: "Added to cart",
       description: `${product.name} has been added to your cart.`,
-    })
-  }
+    });
+  };
 
   const sortedProducts = [...products].sort((a, b) => {
     switch (sortBy) {
       case "price-low":
-        return a.price - b.price
+        return a.price - b.price;
       case "price-high":
-        return b.price - a.price
+        return b.price - a.price;
       case "rating":
-        return b.rating - a.rating
+        return b.rating - a.rating;
       case "newest":
-        return b.id - a.id
+        return b.id - a.id;
       default:
-        return 0
+        return 0;
     }
-  })
+  });
 
   return (
       <div className="space-y-6">
@@ -289,5 +295,5 @@ export default function ProductGrid({ products, page, setPage, totalPages }: Pro
             </div>
         )}
       </div>
-  )
+  );
 }

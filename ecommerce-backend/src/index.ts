@@ -7,6 +7,8 @@ import authRoutes from "@/routes/auth";
 import reviewRoutes from "@/routes/review";
 import customerProductRoutes from "@/routes/customerProductRoutes"
 import orderRoutes from "@/routes/order"
+import paymentRoutes from "./routes/payment";
+import cartRoutes from "./routes/cart";
 import connectToDatabase from "@/utils/mongodb";
 
 
@@ -28,6 +30,8 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/customer/products", customerProductRoutes)
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/orders", orderRoutes)
+app.use("/api/cart", cartRoutes);
+app.use("/api/payments", paymentRoutes);
 
 
 

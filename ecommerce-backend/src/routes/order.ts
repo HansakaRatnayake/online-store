@@ -3,89 +3,79 @@ import jwt from "jsonwebtoken";
 import connectToDatabase from "@/utils/mongodb";
 import { Order } from "@/models/Order";
 import { Product } from "@/models/Product";
-import { AuthUser } from "../types/auth";
+import { Cart } from "@/models/Cart";
+import { Payment } from "@/models/Payment";
+import { authenticate, isCustomer } from "@/middleware/auth";
+import {AuthUser} from "@/types/auth"; // Assume middleware is in a separate file
+
 
 const router = express.Router();
 
-// Middleware to verify JWT and extract user
-const authenticate = async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) {
-        return res.status(401).json({ error: "Authentication required" });
-    }
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as AuthUser;
-        req.user = decoded;
-        next();
-    } catch (error) {
-        res.status(401).json({ error: "Invalid token" });
-    }
-};
 
-// Middleware to restrict to customers
-const isCustomer = (req: Request, res: Response, next: NextFunction) => {
-    if (req.user?.role !== "customer") {
-        return res.status(403).json({ error: "Customer access required" });
-    }
-    next();
-};
 
-// POST /api/orders - Place a new order
+// POST /api/orders - Place a new order after payment
 router.post("/", authenticate, isCustomer, async (req: Request, res: Response) => {
     try {
         await connectToDatabase();
-        const { items, shippingAddress } = req.body;
+        const { items, shippingAddress, paymentIntentId, discount } = req.body;
+        const userId = (req.user as AuthUser).userId;
 
-        if (!items || !Array.isArray(items) || items.length === 0 || !shippingAddress) {
-            return res.status(400).json({ error: "Items and shipping address are required" });
+        if (!items || !shippingAddress || !paymentIntentId) {
+            return res.status(400).json({ error: "Missing required fields" });
         }
 
-        let total = 0;
-        const orderItems = [];
+        // Validate stock
         for (const item of items) {
-            const product = await Product.findById(item.id).lean();
-            if (!product || product.status !== "active") {
-                return res.status(400).json({ error: `Product ${item.id} not found or inactive` });
+            const product = await Product.findOne({ id: parseInt(item.id) });
+            if (!product || !product.inStock || product.stockCount < item.quantity) {
+                return res.status(400).json({ error: `Product ${item.id} is out of stock or insufficient quantity` });
             }
-            if (product.stockCount < item.quantity) {
-                return res.status(400).json({ error: `Insufficient stock for ${product.name}` });
-            }
-            total += product.price * item.quantity;
-            orderItems.push({
-                id: product._id,
-                name: product.name,
-                price: product.price,
-                quantity: item.quantity,
-                image: product.image,
-            });
         }
 
-        const shipping = 10.0;
-        const tax = total * 0.08;
-        total += shipping + tax;
+        // Create order
+        const subtotal = items.reduce((sum: number, item: any) => {
+            return sum + item.quantity * item.price;
+        }, 0);
+        const shipping = subtotal > 100 || items.some((item: any) => item.shipping?.free) ? 0 : 9.99;
+        const tax = (subtotal - discount) * 0.08;
+        const total = subtotal - discount + shipping + tax;
 
-        const orderCount = await Order.countDocuments();
-        const orderNumber = `ORD-${(orderCount + 1).toString().padStart(6, "0")}`;
-
-        const order = new Order({
-            userId: req.user!.userId,
-            orderNumber,
-            total,
-            items: orderItems,
+        const order = await Order.create({
+            userId,
+            items: items.map((item: any) => ({
+                id: parseInt(item.id),
+                quantity: item.quantity,
+                price: item.price,
+                name: item.name,
+                image: item.image,
+                category: item.category,
+                brand: item.brand,
+                shipping: item.shipping || { free: false, estimatedDays: "5-7" },
+            })),
             shippingAddress,
+            paymentIntentId,
+            subtotal,
+            discount,
+            shipping,
+            tax,
+            total,
             status: "pending",
-            trackingUpdates: [{ status: "pending", date: new Date() }],
         });
 
-        await order.save();
-
+        // Update stock
         for (const item of items) {
-            await Product.updateOne({ _id: item.id }, { $inc: { stockCount: -item.quantity } });
+            await Product.updateOne(
+                { id: parseInt(item.id) },
+                { $inc: { stockCount: -item.quantity }, $set: { inStock: item.quantity > 0 } }
+            );
         }
+
+        // Clear cart
+        await Cart.deleteOne({ userId });
 
         res.status(201).json({ order });
     } catch (error) {
-        console.error("Error placing order:", error);
+        console.error("Error creating order:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
@@ -146,7 +136,7 @@ router.patch("/:id", authenticate, isCustomer, async (req: Request, res: Respons
 
         if (status === "cancelled") {
             for (const item of order.items) {
-                await Product.updateOne({ _id: item.id }, { $inc: { stockCount: item.quantity } });
+                await Product.updateOne({ id: item.id }, { $inc: { stockCount: item.quantity }, inStock: true });
             }
         }
 

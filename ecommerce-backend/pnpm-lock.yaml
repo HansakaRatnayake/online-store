@@ -35,6 +35,9 @@ importers:
       mongoose:
         specifier: ^6.10.0
         version: 6.13.8
+      stripe:
+        specifier: ^18.3.0
+        version: 18.3.0(@types/node@22.16.4)
     devDependencies:
       nodemon:
         specifier: ^3.0.1
@@ -923,6 +926,15 @@ packages:
   strip-bom@3.0.0:
     resolution: {integrity: sha512-vavAMRXOgBVNF6nyEEmL3DBK19iRpDcoIwW+swQ+CbGiu7lju6t+JklA1MHweoWtadgt4ISVUsXLyDq34ddcwA==}
     engines: {node: '>=4'}
+
+  stripe@18.3.0:
+    resolution: {integrity: sha512-FkxrTUUcWB4CVN2yzgsfF/YHD6WgYHduaa7VmokCy5TLCgl5UNJkwortxcedrxSavQ8Qfa4Ir4JxcbIYiBsyLg==}
+    engines: {node: '>=12.*'}
+    peerDependencies:
+      '@types/node': '>=12.x.x'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
 
   strnum@2.1.1:
     resolution: {integrity: sha512-7ZvoFTiCnGxBtDqJ//Cu6fWtZtc7Y3x+QOirG15wztbdngGSkht27o2pyGWrVy0b4WAy3jbKmnoK6g5VlVNUUw==}
@@ -2377,6 +2389,12 @@ snapshots:
   statuses@2.0.1: {}
 
   strip-bom@3.0.0: {}
+
+  stripe@18.3.0(@types/node@22.16.4):
+    dependencies:
+      qs: 6.13.0
+    optionalDependencies:
+      '@types/node': 22.16.4
 
   strnum@2.1.1:
     optional: true

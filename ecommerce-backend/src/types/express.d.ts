@@ -1,8 +1,7 @@
-declare namespace Express {
+import { AuthUser } from "./auth";
+
+declare module "express" {
     interface Request {
-        user?: {
-            userId: string
-            role: string
-        }
+        user?: AuthUser;
     }
 }
