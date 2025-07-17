@@ -1,4 +1,3 @@
-// ecommerce-backend/src/models/Product.ts
 import mongoose, { Schema } from "mongoose";
 
 const productSchema = new Schema({
@@ -24,6 +23,9 @@ const productSchema = new Schema({
         free: Boolean,
         estimatedDays: String,
     },
+    sales: Number,
+    status: { type: String, enum: ["active", "inactive"], default: "active" },
+    createdAt: { type: Date, default: Date.now },
 });
 
 export const Product =

@@ -265,7 +265,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
             {/* Individual Reviews */}
             {reviews.length === 0 && <div className="text-center py-4">No reviews yet</div>}
             {reviews.map((review) => (
-                <Card key={review.id}>
+                <Card key={review._id}>
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start mb-4">
                       <div>

@@ -8,7 +8,7 @@ interface User {
   id: string;
   name: string;
   email: string;
-  role: "customer" | "admin" | "seller";
+  role: "customer" | "admin" | "seller"; // Updated to match User model
   avatar?: string;
 }
 
@@ -30,7 +30,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    // Check for stored user session and token
     const storedUser = localStorage.getItem("user");
     const storedToken = localStorage.getItem("token");
 
