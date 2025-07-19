@@ -60,7 +60,7 @@ export default function RegisterForm() {
       await register(formData.name, formData.email, formData.password);
       toast({
         title: "Account created!",
-        description: "Welcome to EliteStore! You have been successfully registered.",
+        description: "Welcome to SmartCart! You have been successfully registered.",
       });
       router.push("/");
     } catch (err: any) {

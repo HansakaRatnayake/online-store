@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import {User} from '@/models/User';
 import * as process from "node:process";
+import {sendEmail} from "../utils/emailservice"
+import {generateWelcomeEmail} from "@/utils/templates/welcomeemail";
 
 const router = express.Router();
 
@@ -61,6 +63,8 @@ router.post('/register', async (req, res) => {
             role: newUser.role,
             avatar: newUser.avatar,
         };
+
+        sendEmail(email,"🎉 Welcome to Smart Cart!","",generateWelcomeEmail(name));
 
         res.status(201).json({
             user: userResponse,
