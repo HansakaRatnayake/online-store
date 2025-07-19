@@ -9,6 +9,7 @@ import customerProductRoutes from "@/routes/customerProductRoutes"
 import orderRoutes from "@/routes/order"
 import paymentRoutes from "./routes/payment";
 import cartRoutes from "./routes/cart";
+import wishlistRoutes from "./routes/wishlist";
 import connectToDatabase from "@/utils/mongodb";
 
 
@@ -31,6 +32,7 @@ app.use("/api/customer/products", customerProductRoutes)
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/orders", orderRoutes)
 app.use("/api/cart", cartRoutes);
+app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/payments", paymentRoutes);
 
 

@@ -36,7 +36,9 @@ export default function CategoriesGrid() {
         if (!res.ok) {
           throw new Error("Failed to fetch categories");
         }
+
         const data = await res.json();
+        console.log(data);
         setCategories(data);
         setFilteredCategories(data);
         setLoading(false);
