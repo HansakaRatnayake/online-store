@@ -12,45 +12,6 @@ import { useAuth } from "@/components/providers/auth-provider"
 import { useToast } from "@/hooks/use-toast"
 import {useCart} from "@/components/providers/cart-provider";
 
-// Mock wishlist data - in real app, this would come from API
-// const mockWishlistItems = [
-//   {
-//     id: 1,
-//     name: "Premium Wireless Headphones",
-//     price: 299.99,
-//     originalPrice: 399.99,
-//     rating: 4.8,
-//     reviews: 124,
-//     image: "/placeholder.svg?height=300&width=300",
-//     inStock: true,
-//     category: "Electronics",
-//     addedDate: "2024-01-15",
-//   },
-//   {
-//     id: 2,
-//     name: "Designer Leather Jacket",
-//     price: 199.99,
-//     originalPrice: 299.99,
-//     rating: 4.9,
-//     reviews: 89,
-//     image: "/placeholder.svg?height=300&width=300",
-//     inStock: true,
-//     category: "Fashion",
-//     addedDate: "2024-01-10",
-//   },
-//   {
-//     id: 3,
-//     name: "Smart Fitness Watch",
-//     price: 249.99,
-//     originalPrice: 349.99,
-//     rating: 4.7,
-//     reviews: 156,
-//     image: "/placeholder.svg?height=300&width=300",
-//     inStock: false,
-//     category: "Electronics",
-//     addedDate: "2024-01-05",
-//   },
-// ]
 
 export default function WishlistContent() {
   // const [wishlistItems, setWishlistItems] = useState(mockWishlistItems)

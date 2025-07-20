@@ -10,7 +10,6 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     }
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET!) as AuthUser;
-        console.log("Decoded token:", decoded);
         req.user = decoded;
         next();
     } catch (error) {
@@ -20,7 +19,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
 
 // Middleware to restrict to customers
 export const isCustomer = (req: Request, res: Response, next: NextFunction) => {
-    if (req.user?.role !== "customer" || "admin") {
+    if (req.user?.role !== "customer") {
         return res.status(403).json({ error: "Customer access required" });
     }
     next();

@@ -370,7 +370,6 @@ export default function ProductsManagement() {
 
 
     const lowStockProducts = products.filter((p) => p.stockCount <= 5);
-    const totalProducts = products.length;
     const activeProducts = products.filter((p) => p.status === "active").length;
     const totalValue = products.reduce((sum, p) => sum + p.price * p.stockCount, 0);
 

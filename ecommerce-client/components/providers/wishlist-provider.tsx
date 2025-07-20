@@ -33,8 +33,6 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
 
-        console.log(token);
-
         if (user && token) {
             // Fetch wishlist from backend for authenticated users
             fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wishlist`, {

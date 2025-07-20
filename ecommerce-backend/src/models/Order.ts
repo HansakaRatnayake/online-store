@@ -29,7 +29,7 @@ export interface IOrder extends Document {
     status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
     trackingUpdates: { status: string; date: Date; location?: string }[];
     trackingNumber?: string;
-    paymentIntentId: string;
+    // paymentIntentId: string;
     createdAt: Date;
 }
 
@@ -77,7 +77,7 @@ const OrderSchema: Schema = new Schema({
         },
     ],
     trackingNumber: { type: String },
-    paymentIntentId: { type: String, required: true },
+    // paymentIntentId: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
 });
 
