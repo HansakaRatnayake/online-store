@@ -26,6 +26,7 @@ export default function ProductsManagement() {
     const [products, setProducts] = useState<any[]>([])
     const [categories, setCategories] = useState<any[]>([])
     const [isLoading, setIsLoading] = useState(true)
+    const [productCount, setProductCount] = useState(0);
     const [error, setError] = useState<string | null>(null)
     const [searchTerm, setSearchTerm] = useState("")
     const [selectedCategory, setSelectedCategory] = useState("all")
@@ -62,6 +63,14 @@ export default function ProductsManagement() {
                 }
                 const productData = await productResponse.json();
                 setProducts(productData);
+
+                //Fetch Product Count
+                const productCountResponse = await fetch("http://localhost:5000/api/products/count");
+                if (!productCountResponse.ok) {
+                    throw new Error("Failed to fetch product count!");
+                }
+                const productCountData = await productCountResponse.json();
+                setProductCount(productCountData.total);
 
                 // Fetch categories
                 const categoryResponse = await fetch("http://localhost:5000/api/categories");
@@ -382,7 +391,7 @@ export default function ProductsManagement() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm font-medium text-gray-600">Total Products</p>
-                                <p className="text-2xl font-bold text-gray-900">{totalProducts}</p>
+                                <p className="text-2xl font-bold text-gray-900">{productCount}</p>
                             </div>
                             <Package className="w-8 h-8 text-blue-600"/>
                         </div>
@@ -732,7 +741,7 @@ export default function ProductsManagement() {
                                         <TableCell>{product.category}</TableCell>
                                         <TableCell>
                                             <div>
-                                                <p className="font-medium">${product.price}</p>
+                                                <p className="font-medium">{product.price}LKR</p>
                                                 {product.originalPrice > product.price && (
                                                     <p className="text-sm text-gray-500 line-through">${product.originalPrice}</p>
                                                 )}

@@ -4,6 +4,19 @@ import { Product } from "@/models/Product";
 
 const router = express.Router();
 
+// Get /api/products/count - Get Product Count
+router.get("/count", async (req: Request, res: Response) => {
+    try {
+        await connectToDatabase();
+
+        const total = await Product.countDocuments({});
+        res.json({ total });
+    } catch (error) {
+        console.error("Error counting products:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 // GET /api/products - Get all products with optional filtering
 router.get("/", async (req: Request, res: Response) => {
     try {
