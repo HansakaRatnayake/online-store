@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Star, Heart, ShoppingCart, Grid, List } from "lucide-react";
 import { useCart } from "@/components/providers/cart-provider";
 import { useToast } from "@/hooks/use-toast";
+import {useWishlist} from "@/components/providers/wishlist-provider";
 
 interface Product {
   id: number;
@@ -38,6 +39,7 @@ export default function ProductGrid({ products, page, setPage, totalPages }: Pro
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("featured");
   const { addToCart } = useCart(); // Use addToCart instead of addItem
+  const { addToWishlist } = useWishlist(); // Use addToCart instead of addItem
   const { toast } = useToast();
 
   const handleAddToCart = (product: Product) => {
@@ -57,6 +59,25 @@ export default function ProductGrid({ products, page, setPage, totalPages }: Pro
       title: "Added to cart",
       description: `${product.name} has been added to your cart.`,
     });
+  };
+
+  const handleAddToWishlist = (product: Product) => {
+    addToWishlist(
+        {
+          id: product.id.toString(),
+          name: product.name,
+          price: product.price,
+          rating: product.rating,
+          image: product.image,
+          category: product.category,
+          brand: product.brand,
+          inStock: product.inStock,
+        },
+    );
+    toast({
+      title: "Added to wishlist",
+      description: `${product.name} has been added to your wishlist.`,
+    })
   };
 
   const sortedProducts = [...products].sort((a, b) => {
@@ -131,7 +152,7 @@ export default function ProductGrid({ products, page, setPage, totalPages }: Pro
                         )}
                         {!product.inStock && <Badge className="absolute top-3 right-3 bg-gray-500">Out of Stock</Badge>}
                         <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button size="icon" variant="secondary" className="rounded-full">
+                          <Button size="icon" variant="secondary" className="rounded-full" onClick={() => handleAddToWishlist(product)}>
                             <Heart className="w-4 h-4" />
                           </Button>
                         </div>
@@ -223,6 +244,7 @@ export default function ProductGrid({ products, page, setPage, totalPages }: Pro
                                 </Link>
                               </h3>
                             </div>
+
                             <Button size="icon" variant="ghost">
                               <Heart className="w-4 h-4" />
                             </Button>

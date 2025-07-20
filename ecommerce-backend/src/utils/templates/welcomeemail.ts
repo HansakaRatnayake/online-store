@@ -6,7 +6,7 @@ export const generateWelcomeEmail = (userName: string) => {
       <div style="max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
         
         <div style="text-align: center;">
-          <img src="https://i.ibb.co/S5yNL1s/smart-cart-logo.png" alt="Smart Cart" width="120" />
+          <img src="https://logopond.com/logos/2e8835b000ff8224e0a278a0b1ce098f.png" alt="Smart Cart" width="120" />
           <h1 style="color: #333;">Welcome to <span style="color: #0f9d58;">Smart Cart</span>!</h1>
         </div>
 
@@ -27,7 +27,7 @@ export const generateWelcomeEmail = (userName: string) => {
         </p>
 
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://smartcart.lk" style="background-color: #0f9d58; color: white; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 5px;">Start Shopping</a>
+          <a href="http://localhost:3000/products" style="background-color: #0f9d58; color: white; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 5px;">Start Shopping</a>
         </div>
 
         <hr style="border: none; border-top: 1px solid #ddd;" />
