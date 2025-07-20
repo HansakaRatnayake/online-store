@@ -37,7 +37,7 @@ export default function ProductsPage() {
           maxPrice: filters.priceRange[1].toString(),
           minRating: filters.rating[0].toString(),
           page: page.toString(),
-          limit: "9",
+          limit: "10",
         }).toString()
 
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/customer/products?${query}`, {

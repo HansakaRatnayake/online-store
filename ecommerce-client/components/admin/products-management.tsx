@@ -742,7 +742,7 @@ export default function ProductsManagement() {
                                             <div>
                                                 <p className="font-medium">{product.price}LKR</p>
                                                 {product.originalPrice > product.price && (
-                                                    <p className="text-sm text-gray-500 line-through">${product.originalPrice}</p>
+                                                    <p className="text-sm text-gray-500 line-through">{product.originalPrice}LKR</p>
                                                 )}
                                             </div>
                                         </TableCell>

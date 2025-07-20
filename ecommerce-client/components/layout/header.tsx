@@ -227,7 +227,7 @@ export default function Header() {
               </div>
           )}
         </div>
-        <LogoutDialog isOpen={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen} onLogout={logout} />
+        <LogoutDialog isOpen={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen} onLogout={logout} onClose={() => setIsLogoutDialogOpen(false)} />
       </header>
   );
 }

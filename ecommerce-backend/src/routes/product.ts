@@ -39,12 +39,21 @@ router.get("/", async (req: Request, res: Response) => {
         const pageNum = parseInt(page as string, 10);
         const limitNum = parseInt(limit as string, 10);
 
+        const totalCount = await Product.countDocuments(query); // 👈 count total results
+        const totalPages = Math.ceil(totalCount / limitNum);
+
         const products = await Product.find(query)
+            .sort({ createdAt: -1 }) // ✅ Newest to Oldest
             .skip((pageNum - 1) * limitNum)
             .limit(limitNum)
             .lean();
 
-        res.json(products);
+        res.json({
+            products,
+            currentPage: pageNum,
+            totalPages,
+            totalCount,
+        });
     } catch (error) {
         console.error("Error fetching products:", error);
         res.status(500).json({ error: "Internal Server Error" });
