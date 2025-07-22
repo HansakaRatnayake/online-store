@@ -22,12 +22,23 @@ router.get("/", async (req: Request, res: Response) => {
     try {
         await connectToDatabase();
 
-        const { category, search, page = "1", limit = "10" } = req.query;
+        const {
+            category,
+            search,
+            brands,
+            colors,
+            minPrice,
+            //maxPrice,
+            minRating,
+            page = "1",
+            limit = "10",
+        } = req.query;
 
         let query: any = {};
         if (category) {
             query.category = { $regex: category as string, $options: "i" };
         }
+
         if (search) {
             query.$or = [
                 { name: { $regex: search as string, $options: "i" } },

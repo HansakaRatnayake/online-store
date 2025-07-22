@@ -34,6 +34,9 @@ export default function ProductsManagement() {
     const [editingProduct, setEditingProduct] = useState<any>(null)
     const {toast} = useToast()
 
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+
     const [newProduct, setNewProduct] = useState({
         name: "",
         price: "",
@@ -62,7 +65,7 @@ export default function ProductsManagement() {
                     throw new Error("Failed to fetch products");
                 }
                 const productData = await productResponse.json();
-                setProducts(productData);
+                setProducts(productData.products);
 
                 //Fetch Product Count
                 const productCountResponse = await fetch("http://localhost:5000/api/products/count");
@@ -783,6 +786,29 @@ export default function ProductsManagement() {
                                 ))}
                             </TableBody>
                         </Table>
+
+                        {/* Pagination Controls */}
+                        {products.length > 0 && (
+                            <div className="flex justify-center items-center gap-4 mt-6 mb-2">
+                                <Button
+                                    variant="outline"
+                                    disabled={page === 1}
+                                    onClick={() => setPage(page - 1)}
+                                >
+                                    Previous
+                                </Button>
+                                <span className="text-gray-600">
+                                    Page {page} of {totalPages}
+                                </span>
+                                <Button
+                                    variant="outline"
+                                    disabled={page === totalPages}
+                                    onClick={() => setPage(page + 1)}
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </CardContent>
             </Card>
