@@ -26,12 +26,16 @@ export default function ProductsManagement() {
     const [products, setProducts] = useState<any[]>([])
     const [categories, setCategories] = useState<any[]>([])
     const [isLoading, setIsLoading] = useState(true)
+    const [productCount, setProductCount] = useState(0);
     const [error, setError] = useState<string | null>(null)
     const [searchTerm, setSearchTerm] = useState("")
     const [selectedCategory, setSelectedCategory] = useState("all")
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
     const [editingProduct, setEditingProduct] = useState<any>(null)
     const {toast} = useToast()
+
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     const [newProduct, setNewProduct] = useState({
         name: "",
@@ -61,7 +65,15 @@ export default function ProductsManagement() {
                     throw new Error("Failed to fetch products");
                 }
                 const productData = await productResponse.json();
-                setProducts(productData);
+                setProducts(productData.products);
+
+                //Fetch Product Count
+                const productCountResponse = await fetch("http://localhost:5000/api/products/count");
+                if (!productCountResponse.ok) {
+                    throw new Error("Failed to fetch product count!");
+                }
+                const productCountData = await productCountResponse.json();
+                setProductCount(productCountData.total);
 
                 // Fetch categories
                 const categoryResponse = await fetch("http://localhost:5000/api/categories");
@@ -361,7 +373,6 @@ export default function ProductsManagement() {
 
 
     const lowStockProducts = products.filter((p) => p.stockCount <= 5);
-    const totalProducts = products.length;
     const activeProducts = products.filter((p) => p.status === "active").length;
     const totalValue = products.reduce((sum, p) => sum + p.price * p.stockCount, 0);
 
@@ -382,7 +393,7 @@ export default function ProductsManagement() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm font-medium text-gray-600">Total Products</p>
-                                <p className="text-2xl font-bold text-gray-900">{totalProducts}</p>
+                                <p className="text-2xl font-bold text-gray-900">{productCount}</p>
                             </div>
                             <Package className="w-8 h-8 text-blue-600"/>
                         </div>
@@ -732,9 +743,9 @@ export default function ProductsManagement() {
                                         <TableCell>{product.category}</TableCell>
                                         <TableCell>
                                             <div>
-                                                <p className="font-medium">${product.price}</p>
+                                                <p className="font-medium">{product.price}LKR</p>
                                                 {product.originalPrice > product.price && (
-                                                    <p className="text-sm text-gray-500 line-through">${product.originalPrice}</p>
+                                                    <p className="text-sm text-gray-500 line-through">{product.originalPrice}LKR</p>
                                                 )}
                                             </div>
                                         </TableCell>
@@ -775,6 +786,29 @@ export default function ProductsManagement() {
                                 ))}
                             </TableBody>
                         </Table>
+
+                        {/* Pagination Controls */}
+                        {products.length > 0 && (
+                            <div className="flex justify-center items-center gap-4 mt-6 mb-2">
+                                <Button
+                                    variant="outline"
+                                    disabled={page === 1}
+                                    onClick={() => setPage(page - 1)}
+                                >
+                                    Previous
+                                </Button>
+                                <span className="text-gray-600">
+                                    Page {page} of {totalPages}
+                                </span>
+                                <Button
+                                    variant="outline"
+                                    disabled={page === totalPages}
+                                    onClick={() => setPage(page + 1)}
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </CardContent>
             </Card>

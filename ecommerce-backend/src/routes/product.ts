@@ -4,17 +4,41 @@ import { Product } from "@/models/Product";
 
 const router = express.Router();
 
+// Get /api/products/count - Get Product Count
+router.get("/count", async (req: Request, res: Response) => {
+    try {
+        await connectToDatabase();
+
+        const total = await Product.countDocuments({});
+        res.json({ total });
+    } catch (error) {
+        console.error("Error counting products:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 // GET /api/products - Get all products with optional filtering
 router.get("/", async (req: Request, res: Response) => {
     try {
         await connectToDatabase();
 
-        const { category, search, page = "1", limit = "10" } = req.query;
+        const {
+            category,
+            search,
+            brands,
+            colors,
+            minPrice,
+            //maxPrice,
+            minRating,
+            page = "1",
+            limit = "10",
+        } = req.query;
 
         let query: any = {};
         if (category) {
             query.category = { $regex: category as string, $options: "i" };
         }
+
         if (search) {
             query.$or = [
                 { name: { $regex: search as string, $options: "i" } },
@@ -26,12 +50,21 @@ router.get("/", async (req: Request, res: Response) => {
         const pageNum = parseInt(page as string, 10);
         const limitNum = parseInt(limit as string, 10);
 
+        const totalCount = await Product.countDocuments(query); // 👈 count total results
+        const totalPages = Math.ceil(totalCount / limitNum);
+
         const products = await Product.find(query)
+            .sort({ createdAt: -1 }) // ✅ Newest to Oldest
             .skip((pageNum - 1) * limitNum)
             .limit(limitNum)
             .lean();
 
-        res.json(products);
+        res.json({
+            products,
+            currentPage: pageNum,
+            totalPages,
+            totalCount,
+        });
     } catch (error) {
         console.error("Error fetching products:", error);
         res.status(500).json({ error: "Internal Server Error" });

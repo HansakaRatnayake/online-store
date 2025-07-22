@@ -17,43 +17,52 @@ const router = express.Router();
 router.post("/", authenticate, isCustomer, async (req: Request, res: Response) => {
     try {
         await connectToDatabase();
-        const { items, shippingAddress, paymentIntentId, discount } = req.body;
+
+        const { items, shippingAddress, discount=0 } = req.body;
         const userId = (req.user as AuthUser).userId;
 
-        if (!items || !shippingAddress || !paymentIntentId) {
+        if (!items || !shippingAddress ) {
             return res.status(400).json({ error: "Missing required fields" });
         }
 
-        // Validate stock
+        const enrichedItems = [];
+
         for (const item of items) {
             const product = await Product.findOne({ id: parseInt(item.id) });
+
             if (!product || !product.inStock || product.stockCount < item.quantity) {
-                return res.status(400).json({ error: `Product ${item.id} is out of stock or insufficient quantity` });
+                return res.status(400).json({ error: `Product ${item.id} is out of stock or has insufficient quantity` });
             }
+
+            enrichedItems.push({
+                id: product.id,
+                quantity: item.quantity,
+                price: product.price,
+                name: product.name,
+                image: product.image,
+                category: product.category,
+                brand: product.brand,
+                shipping: product.shipping || { free: false, estimatedDays: "5-7" },
+            });
         }
 
-        // Create order
-        const subtotal = items.reduce((sum: number, item: any) => {
-            return sum + item.quantity * item.price;
-        }, 0);
-        const shipping = subtotal > 100 || items.some((item: any) => item.shipping?.free) ? 0 : 9.99;
+        // Pricing calculations
+        const subtotal = enrichedItems.reduce((sum, item) => sum + item.quantity * item.price, 0);
+        const shipping = subtotal > 100 || enrichedItems.some(item => item.shipping?.free) ? 0 : 9.99;
         const tax = (subtotal - discount) * 0.08;
         const total = subtotal - discount + shipping + tax;
 
+        // Validation before saving
+        if ([subtotal, tax, total].some(val => isNaN(val))) {
+            return res.status(400).json({ error: "Invalid pricing calculation" });
+        }
+
+        // Create the order
         const order = await Order.create({
             userId,
-            items: items.map((item: any) => ({
-                id: parseInt(item.id),
-                quantity: item.quantity,
-                price: item.price,
-                name: item.name,
-                image: item.image,
-                category: item.category,
-                brand: item.brand,
-                shipping: item.shipping || { free: false, estimatedDays: "5-7" },
-            })),
+            orderNumber: generateOrderNumber,
+            items: enrichedItems,
             shippingAddress,
-            paymentIntentId,
             subtotal,
             discount,
             shipping,
@@ -73,12 +82,19 @@ router.post("/", authenticate, isCustomer, async (req: Request, res: Response) =
         // Clear cart
         await Cart.deleteOne({ userId });
 
-        res.status(201).json({ order });
+        res.status(201).json({ success: true, order });
+
     } catch (error) {
         console.error("Error creating order:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
+const generateOrderNumber = () => {
+    const now = Date.now(); // milliseconds
+    const random = Math.floor(1000 + Math.random() * 9000); // 4-digit random number
+    return `ORD-${now}-${random}`; // e.g., "ORD-1721454361534-8432"
+};
 
 // GET /api/orders/my-orders - Get customer's orders with pagination
 router.get("/my-orders", authenticate, isCustomer, async (req: Request, res: Response) => {

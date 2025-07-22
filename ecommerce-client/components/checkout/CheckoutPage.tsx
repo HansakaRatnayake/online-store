@@ -116,33 +116,32 @@ function CheckoutForm({ items, getTotalPrice, getTotalItems, clearCart, user, to
         if (!cardElement) return;
 
         try {
-            const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
-                payment_method: {
-                    card: cardElement,
-                    billing_details: {
-                        name: shippingAddress.name,
-                        address: {
-                            line1: shippingAddress.street,
-                            city: shippingAddress.city,
-                            state: shippingAddress.state,
-                            postal_code: shippingAddress.zipCode,
-                            country: shippingAddress.country,
-                        },
-                    },
-                },
-            });
+        //     const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
+        //         payment_method: {
+        //             card: cardElement,
+        //             billing_details: {
+        //                 name: shippingAddress.name,
+        //                 address: {
+        //                     line1: shippingAddress.street,
+        //                     city: shippingAddress.city,
+        //                     state: shippingAddress.state,
+        //                     postal_code: shippingAddress.zipCode,
+        //                     country: shippingAddress.country,
+        //                 },
+        //             },
+        //         },
+        //     });
+        //
+        //     if (error) {
+        //         toast({
+        //             title: "Payment failed",
+        //             description: error.message,
+        //             variant: "destructive",
+        //         });
+        //         setIsProcessing(false);
+        //         return;
+        //     }
 
-            if (error) {
-                toast({
-                    title: "Payment failed",
-                    description: error.message,
-                    variant: "destructive",
-                });
-                setIsProcessing(false);
-                return;
-            }
-
-            if (paymentIntent?.status === "succeeded") {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, {
                     method: "POST",
                     headers: {
@@ -155,7 +154,7 @@ function CheckoutForm({ items, getTotalPrice, getTotalItems, clearCart, user, to
                             quantity: item.quantity,
                         })),
                         shippingAddress,
-                        paymentIntentId: paymentIntent.id,
+                        // paymentIntentId: paymentIntent.id,
                         discount: discountAmount,
                     }),
                 });
@@ -175,7 +174,6 @@ function CheckoutForm({ items, getTotalPrice, getTotalItems, clearCart, user, to
                         variant: "destructive",
                     });
                 }
-            }
         } catch (error) {
             console.error("Checkout error:", error);
             toast({
@@ -388,7 +386,7 @@ function CheckoutForm({ items, getTotalPrice, getTotalItems, clearCart, user, to
                                     className="w-full"
                                     size="lg"
                                     onClick={handleSubmit}
-                                    disabled={isProcessing || !stripe || !clientSecret}
+                                    // disabled={isProcessing || !stripe || !clientSecret}
                                 >
                                     {isProcessing ? "Processing..." : "Place Order"}
                                     <ArrowRight className="ml-2 w-4 h-4" />

@@ -25,6 +25,7 @@ export default function ProductsPage() {
   const [totalPages, setTotalPages] = useState(1)
 
   useEffect(() => {
+
     async function fetchProducts() {
       try {
         setIsLoading(true)
@@ -34,10 +35,10 @@ export default function ProductsPage() {
           brands: filters.brands.join(","),
           colors: filters.colors.join(","),
           minPrice: filters.priceRange[0].toString(),
-          maxPrice: filters.priceRange[1].toString(),
+          //maxPrice: filters.priceRange[1].toString(),
           minRating: filters.rating[0].toString(),
           page: page.toString(),
-          limit: "9",
+          limit: "10",
         }).toString()
 
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/customer/products?${query}`, {
@@ -47,6 +48,7 @@ export default function ProductsPage() {
           throw new Error("Failed to fetch products")
         }
         const data = await res.json()
+        console.log(data)
         setProducts(data.products)
         setTotalPages(data.totalPages)
         setIsLoading(false)

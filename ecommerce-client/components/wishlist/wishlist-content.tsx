@@ -1,106 +1,92 @@
 "use client"
 
-import { useState } from "react"
+import {useEffect, useState} from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Heart, ShoppingCart, Trash2, Share2, Star } from "lucide-react"
-import { useCart } from "@/components/providers/cart-provider"
+import { useWishlist } from "@/components/providers/wishlist-provider"
 import { useAuth } from "@/components/providers/auth-provider"
 import { useToast } from "@/hooks/use-toast"
+import {useCart} from "@/components/providers/cart-provider";
 
-// Mock wishlist data - in real app, this would come from API
-const mockWishlistItems = [
-  {
-    id: 1,
-    name: "Premium Wireless Headphones",
-    price: 299.99,
-    originalPrice: 399.99,
-    rating: 4.8,
-    reviews: 124,
-    image: "/placeholder.svg?height=300&width=300",
-    inStock: true,
-    category: "Electronics",
-    addedDate: "2024-01-15",
-  },
-  {
-    id: 2,
-    name: "Designer Leather Jacket",
-    price: 199.99,
-    originalPrice: 299.99,
-    rating: 4.9,
-    reviews: 89,
-    image: "/placeholder.svg?height=300&width=300",
-    inStock: true,
-    category: "Fashion",
-    addedDate: "2024-01-10",
-  },
-  {
-    id: 3,
-    name: "Smart Fitness Watch",
-    price: 249.99,
-    originalPrice: 349.99,
-    rating: 4.7,
-    reviews: 156,
-    image: "/placeholder.svg?height=300&width=300",
-    inStock: false,
-    category: "Electronics",
-    addedDate: "2024-01-05",
-  },
-]
 
 export default function WishlistContent() {
-  const [wishlistItems, setWishlistItems] = useState(mockWishlistItems)
-  const { addItem } = useCart()
-  const { user } = useAuth()
-  const { toast } = useToast()
+  // const [wishlistItems, setWishlistItems] = useState(mockWishlistItems)
+  const { addToCart } = useCart();
+  const { items, removeItem } = useWishlist();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
 
-  const handleRemoveFromWishlist = (id: number, name: string) => {
-    setWishlistItems((items) => items.filter((item) => item.id !== id))
+  useEffect(() => {
+    // Just for smooth UX loading
+    const timer = setTimeout(() => setLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleRemoveFromWishlist = (id: string, name: string) => {
+    removeItem(id);
     toast({
       title: "Removed from wishlist",
       description: `${name} has been removed from your wishlist.`,
-    })
+    });
   }
 
   const handleAddToCart = (product: any) => {
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      quantity: 1,
-    })
+    addToCart(
+        {
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+          brand: product.brand || "",
+          category: product.category,
+          shipping: {
+            free: true,
+            estimatedDays: "5-7",
+          },
+        },
+        1 // default quantity
+    );
     toast({
-      title: "Added to cart",
-      description: `${product.name} has been added to your cart.`,
+      title: "Added to wishlist",
+      description: `${product.name} has been added to your wishlist.`,
     })
   }
 
   const handleAddAllToCart = () => {
-    const inStockItems = wishlistItems.filter((item) => item.inStock)
+    const inStockItems = items.filter((item) => item.inStock)
     inStockItems.forEach((item) => {
-      addItem({
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        image: item.image,
-        quantity: 1,
-      })
-    })
-    toast({
-      title: "Added to cart",
-      description: `${inStockItems.length} items have been added to your cart.`,
-    })
+        addToCart(
+            {
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                image: item.image,
+                brand: item.brand || "",
+                category: item.category,
+                shipping: {
+                    free: true,
+                    estimatedDays: "5-7",
+                },
+            },
+            1 // default quantity
+        );
+        toast({
+            title: "Added to cart",
+            description: `${inStockItems.length} items have been added to your cart.`,
+        })
+    });
   }
 
   const handleShare = (product: any) => {
     if (navigator.share) {
       navigator.share({
         title: product.name,
-        text: `Check out this ${product.name} on EliteStore`,
+        text: `Check out this ${product.name} on SmartCart`,
         url: `${window.location.origin}/products/${product.id}`,
       })
     } else {
@@ -125,7 +111,7 @@ export default function WishlistContent() {
     )
   }
 
-  if (wishlistItems.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="text-center py-16">
         <Heart className="w-16 h-16 mx-auto text-gray-400 mb-4" />
@@ -138,7 +124,7 @@ export default function WishlistContent() {
     )
   }
 
-  const inStockCount = wishlistItems.filter((item) => item.inStock).length
+  const inStockCount = items.filter((item) => item.inStock).length
 
   return (
     <div className="space-y-6">
@@ -146,7 +132,7 @@ export default function WishlistContent() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-lg shadow-sm">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">
-            {wishlistItems.length} {wishlistItems.length === 1 ? "Item" : "Items"} in Wishlist
+            {items.length} {items.length === 1 ? "Item" : "Items"} in Wishlist
           </h2>
           <p className="text-gray-600">
             {inStockCount} {inStockCount === 1 ? "item" : "items"} available in stock
@@ -162,7 +148,7 @@ export default function WishlistContent() {
 
       {/* Wishlist Items */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {wishlistItems.map((item) => (
+        {items.map((item) => (
           <Card key={item.id} className="group hover:shadow-lg transition-shadow duration-300">
             <CardContent className="p-0">
               <div className="relative overflow-hidden rounded-t-lg">
@@ -219,24 +205,24 @@ export default function WishlistContent() {
                       />
                     ))}
                   </div>
-                  <span className="text-sm text-gray-500 ml-2">({item.reviews})</span>
+                  <span className="text-sm text-gray-500 ml-2">({item.rating})</span>
                 </div>
 
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center space-x-2">
                     <span className="text-lg font-bold text-gray-900">${item.price}</span>
-                    {item.originalPrice > item.price && (
-                      <span className="text-sm text-gray-500 line-through">${item.originalPrice}</span>
+                    {item.price > item.price && (
+                      <span className="text-sm text-gray-500 line-through">${item.price}</span>
                     )}
                   </div>
-                  {item.originalPrice > item.price && (
+                  {item.price > item.price && (
                     <Badge variant="secondary" className="text-green-600">
-                      {Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)}% OFF
+                      {Math.round(((item.price - item.price) / item.price) * 100)}% OFF
                     </Badge>
                   )}
                 </div>
 
-                <div className="text-xs text-gray-500 mb-3">Added on {item.addedDate}</div>
+                <div className="text-xs text-gray-500 mb-3">Added on 2025.07.07</div>
 
                 <div className="flex gap-2">
                   <Button onClick={() => handleAddToCart(item)} disabled={!item.inStock} className="flex-1" size="sm">

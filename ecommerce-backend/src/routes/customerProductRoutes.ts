@@ -71,9 +71,10 @@ router.get("/", async (req: Request, res: Response) => {
         const pageNum = parseInt(page as string, 10)
         const limitNum = parseInt(limit as string, 10)
 
-        console.log("Query:", JSON.stringify(query, null, 2)) // Debug log
+        //console.log("Query:", JSON.stringify(query, null, 2)) // Debug log
 
         const products = await Product.find(query)
+            .sort({ createdAt: -1 }) // ✅ Newest to Oldest
             .skip((pageNum - 1) * limitNum)
             .limit(limitNum)
             .lean()
