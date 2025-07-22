@@ -36,7 +36,6 @@ const navigation = [
   { name: "Products", href: "/admin/products", icon: Package },
   { name: "Orders", href: "/admin/orders", icon: ShoppingCart, badge: "12" },
   { name: "Customers", href: "/admin/customers", icon: Users },
-  { name: "Categories", href: "/admin/categories", icon: Tag },
   { name: "Analytics", href: "/admin/analytics", icon: TrendingUp },
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ]
@@ -56,7 +55,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="flex h-16 items-center justify-between px-4 border-b">
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">ES</span>
+                  <span className="text-white font-bold text-sm">SC</span>
                 </div>
                 <span className="text-xl font-bold text-gray-900">Admin</span>
               </div>
