@@ -183,6 +183,7 @@ router.get("/", authenticate, async (req: Request, res: Response) => {
     if (req.user?.role !== "admin") {
         return res.status(403).json({ error: "Admin access required" });
     }
+
     try {
         await connectToDatabase();
         const { page = "1", limit = "10" } = req.query;

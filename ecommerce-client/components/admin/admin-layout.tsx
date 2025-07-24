@@ -30,6 +30,7 @@ import {
   TrendingUp,
 } from "lucide-react"
 import { useAuth } from "@/components/providers/auth-provider"
+import LogoutDialog from "@/components/ui/logout-dialog";
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: BarChart3 },
@@ -43,7 +44,9 @@ const navigation = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
-  const { user, logout } = useAuth()
+  const { user, logout } = useAuth();
+
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -163,8 +166,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+            <LogoutDialog isOpen={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen} onLogout={logout} onClose={() => setIsLogoutDialogOpen(false)} />
           </div>
         </div>
+
 
         {/* Page content */}
         <main className="p-4 sm:p-6 lg:p-8">{children}</main>
