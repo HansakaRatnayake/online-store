@@ -59,13 +59,20 @@ export default function ProductsManagement() {
     useEffect(() => {
         async function fetchData() {
             try {
+
+                const query = new URLSearchParams({
+                    page: page.toString(),
+                    limit: "10",
+                }).toString()
+
                 // Fetch products
-                const productResponse = await fetch("http://localhost:5000/api/products");
+                const productResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products?${query}`);
                 if (!productResponse.ok) {
                     throw new Error("Failed to fetch products");
                 }
                 const productData = await productResponse.json();
                 setProducts(productData.products);
+                setTotalPages(productData.totalPages);
 
                 //Fetch Product Count
                 const productCountResponse = await fetch("http://localhost:5000/api/products/count");
@@ -91,7 +98,7 @@ export default function ProductsManagement() {
         }
 
         fetchData();
-    }, []);
+    }, [page]);
 
     const filteredProducts = products.filter((product) => {
         const matchesSearch =

@@ -30,13 +30,13 @@ import {
   TrendingUp,
 } from "lucide-react"
 import { useAuth } from "@/components/providers/auth-provider"
+import LogoutDialog from "@/components/ui/logout-dialog";
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: BarChart3 },
   { name: "Products", href: "/admin/products", icon: Package },
   { name: "Orders", href: "/admin/orders", icon: ShoppingCart, badge: "12" },
   { name: "Customers", href: "/admin/customers", icon: Users },
-  { name: "Categories", href: "/admin/categories", icon: Tag },
   { name: "Analytics", href: "/admin/analytics", icon: TrendingUp },
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ]
@@ -44,7 +44,9 @@ const navigation = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
-  const { user, logout } = useAuth()
+  const { user, logout } = useAuth();
+
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -56,7 +58,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="flex h-16 items-center justify-between px-4 border-b">
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">ES</span>
+                  <span className="text-white font-bold text-sm">SC</span>
                 </div>
                 <span className="text-xl font-bold text-gray-900">Admin</span>
               </div>
@@ -164,8 +166,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+            <LogoutDialog isOpen={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen} onLogout={logout} onClose={() => setIsLogoutDialogOpen(false)} />
           </div>
         </div>
+
 
         {/* Page content */}
         <main className="p-4 sm:p-6 lg:p-8">{children}</main>
