@@ -60,7 +60,7 @@ router.post("/", authenticate, isCustomer, async (req: Request, res: Response) =
         // Create the order
         const order = await Order.create({
             userId,
-            orderNumber: generateOrderNumber,
+            orderNumber: generateOrderNumber(),
             items: enrichedItems,
             shippingAddress,
             subtotal,
