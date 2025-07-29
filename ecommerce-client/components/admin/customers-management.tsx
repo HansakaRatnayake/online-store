@@ -124,14 +124,14 @@ export default function CustomersManagement() {
             Authorization: `Bearer ${token}`,
           },
         });
-        if (!OrderResponse.ok) {
+        if (!customerResponse.ok) {
           throw new Error("Failed to fetch orders!");
         }
-        const orderData = await OrderResponse.json();
+        const customerData = await customerResponse.json();
 
-        setOrders(orderData.orders);
+        setCustomerss(customerData.users);
 
-        setTotalPages(orderData.totalPages);
+        setTotalPages(customerData.totalPages);
 
         setIsLoading(false);
       } catch (err) {
