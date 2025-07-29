@@ -34,7 +34,7 @@ export default function UserProfile() {
     dateOfBirth: "1990-01-15",
     gender: "male",
     bio: "Passionate about technology and quality products.",
-    avatar: "/placeholder.svg?height=100&width=100",
+    avatar: "https://api.dicebear.com/9.x/adventurer/svg?seed=admin",
 
     // Address
     address: "123 Main St",
@@ -97,7 +97,7 @@ export default function UserProfile() {
           <div className="flex items-center gap-6">
             <div className="relative">
               <Image
-                src={profile.avatar || "/placeholder.svg"}
+                src={profile.avatar || "https://api.dicebear.com/9.x/adventurer/svg?seed=admin"}
                 alt={profile.name}
                 width={100}
                 height={100}
