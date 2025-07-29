@@ -9,8 +9,31 @@ router.get("/", async (req: Request, res: Response) => {
     try {
         await connectToDatabase();
 
-        const users = await User.find().lean();
-        res.json(users);
+        const {
+            page = "1",
+            limit = "10",
+        } = req.query;
+
+        let query: any = {};
+
+        const pageNum = parseInt(page as string, 10);
+        const limitNum = parseInt(limit as string, 10);
+
+        const totalCount = await User.countDocuments(query); // 👈 count total results
+        const totalPages = Math.ceil(totalCount / limitNum);
+
+        const users = await User.find(query)
+            .sort({ createdAt: -1 }) // ✅ Newest to Oldest
+            .skip((pageNum - 1) * limitNum)
+            .limit(limitNum)
+            .lean();
+
+        res.json({
+            users,
+            currentPage: pageNum,
+            totalPages,
+            totalCount
+        });
     } catch (error) {
         console.error("Error fetching users:", error);
         res.status(500).json({ error: "Internal Server Error" });
@@ -21,9 +44,31 @@ router.get("/", async (req: Request, res: Response) => {
 router.get("/customers", async (req: Request, res: Response) => {
     try {
         await connectToDatabase();
+        const {
+            page = "1",
+            limit = "10",
+        } = req.query;
 
-        const customers = await User.find({ role: "customer" }).lean();
-        res.json(customers);
+        let query: any = {};
+
+        const pageNum = parseInt(page as string, 10);
+        const limitNum = parseInt(limit as string, 10);
+
+        const totalCount = await User.countDocuments(query); // 👈 count total results
+        const totalPages = Math.ceil(totalCount / limitNum);
+
+        const customers = await User.find({ role: "customer" })
+            .sort({ createdAt: -1 }) // ✅ Newest to Oldest
+            .skip((pageNum - 1) * limitNum)
+            .limit(limitNum)
+            .lean();
+
+        res.json({
+            customers,
+            currentPage: pageNum,
+            totalPages,
+            totalCount,});
+            
     } catch (error) {
         console.error("Error fetching customers:", error);
         res.status(500).json({ error: "Internal Server Error" });
