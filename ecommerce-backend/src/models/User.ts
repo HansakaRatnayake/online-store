@@ -23,6 +23,20 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: '/placeholder.svg?height=40&width=40',
     },
+    mobileNo: {
+        type: String,
+    },
+    country: {
+        type: String,
+    },
+    dob: {
+        type: Date,
+    },
+    status: {
+        type: String,
+        enum: ['Active', 'Inactive', 'Blocked'],
+        default: 'Active',
+    },
     createdAt: {
         type: Date,
         default: Date.now,

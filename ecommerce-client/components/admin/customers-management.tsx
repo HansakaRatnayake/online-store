@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -19,6 +19,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, Eye, Mail, Phone, MapPin, ShoppingBag, Calendar, Ban, CheckCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "../providers/auth-provider"
+
 
 const mockCustomers = [
   {
@@ -93,7 +95,54 @@ export default function CustomersManagement() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null)
-  const { toast } = useToast()
+  const { toast } = useToast();
+  const { token } =useAuth();
+
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true)
+  const [customerss, setCustomerss] = useState<any[]>([]);
+
+  useEffect(() => {
+
+    if (!token) return;
+
+    async function fetchData() {
+      try {
+
+        const query = new URLSearchParams({
+          page: page.toString(),
+          limit: "10",
+        }).toString()
+
+        // Fetch Customers
+        const customerResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/customers?${query}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!OrderResponse.ok) {
+          throw new Error("Failed to fetch orders!");
+        }
+        const orderData = await OrderResponse.json();
+
+        setOrders(orderData.orders);
+
+        setTotalPages(orderData.totalPages);
+
+        setIsLoading(false);
+      } catch (err) {
+        setError("Error fetching data");
+        setIsLoading(false);
+        console.error(err);
+      }
+    }
+
+    fetchData();
+  }, [page,token]);
 
   const filteredCustomers = customers.filter((customer) => {
     const matchesSearch =
@@ -144,6 +193,8 @@ export default function CustomersManagement() {
         return null
     }
   }
+
+
 
   return (
     <div className="space-y-6">

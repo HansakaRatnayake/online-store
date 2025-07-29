@@ -10,6 +10,7 @@ import orderRoutes from "@/routes/order"
 import paymentRoutes from "./routes/payment";
 import cartRoutes from "./routes/cart";
 import wishlistRoutes from "./routes/wishlist";
+import userRoutes from "./routes/user";
 import connectToDatabase from "@/utils/mongodb";
 
 
@@ -34,8 +35,7 @@ app.use("/api/orders", orderRoutes)
 app.use("/api/cart", cartRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/payments", paymentRoutes);
-
-
+app.use("/api/users", userRoutes);
 
 
 app.listen(PORT, () => {
