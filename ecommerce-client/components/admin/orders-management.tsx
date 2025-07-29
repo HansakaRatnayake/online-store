@@ -20,80 +20,6 @@ import { Search, Eye, Package, Truck, CheckCircle, XCircle, RefreshCw, Download 
 import { useToast } from "@/hooks/use-toast"
 import {useAuth} from "@/components/providers/auth-provider";
 
-// const mockOrders = [
-//   {
-//     id: "ORD-001",
-//     customer: {
-//       name: "John Doe",
-//       email: "john@example.com",
-//       phone: "+1 (555) 123-4567",
-//     },
-//     items: [
-//       { name: "Premium Wireless Headphones", quantity: 1, price: 299.99 },
-//       { name: "Phone Case", quantity: 2, price: 19.99 },
-//     ],
-//     total: 339.97,
-//     status: "processing",
-//     paymentStatus: "paid",
-//     shippingAddress: "123 Main St, New York, NY 10001",
-//     orderDate: "2024-01-15T10:30:00Z",
-//     estimatedDelivery: "2024-01-20",
-//     trackingNumber: "TRK123456789",
-//   },
-//   {
-//     id: "ORD-002",
-//     customer: {
-//       name: "Sarah Smith",
-//       email: "sarah@example.com",
-//       phone: "+1 (555) 987-6543",
-//     },
-//     items: [{ name: "Designer Leather Jacket", quantity: 1, price: 199.99 }],
-//     total: 199.99,
-//     status: "shipped",
-//     paymentStatus: "paid",
-//     shippingAddress: "456 Oak Ave, Los Angeles, CA 90210",
-//     orderDate: "2024-01-14T14:20:00Z",
-//     estimatedDelivery: "2024-01-18",
-//     trackingNumber: "TRK987654321",
-//   },
-//   {
-//     id: "ORD-003",
-//     customer: {
-//       name: "Mike Johnson",
-//       email: "mike@example.com",
-//       phone: "+1 (555) 456-7890",
-//     },
-//     items: [
-//       { name: "Smart Fitness Watch", quantity: 1, price: 249.99 },
-//       { name: "Watch Band", quantity: 1, price: 29.99 },
-//       { name: "Screen Protector", quantity: 2, price: 9.99 },
-//     ],
-//     total: 299.96,
-//     status: "delivered",
-//     paymentStatus: "paid",
-//     shippingAddress: "789 Pine St, Chicago, IL 60601",
-//     orderDate: "2024-01-12T09:15:00Z",
-//     estimatedDelivery: "2024-01-16",
-//     trackingNumber: "TRK456789123",
-//   },
-//   {
-//     id: "ORD-004",
-//     customer: {
-//       name: "Emily Brown",
-//       email: "emily@example.com",
-//       phone: "+1 (555) 321-0987",
-//     },
-//     items: [{ name: "Organic Skincare Set", quantity: 1, price: 89.99 }],
-//     total: 89.99,
-//     status: "pending",
-//     paymentStatus: "pending",
-//     shippingAddress: "321 Elm St, Miami, FL 33101",
-//     orderDate: "2024-01-16T16:45:00Z",
-//     estimatedDelivery: "2024-01-22",
-//     trackingNumber: null,
-//   },
-// ]
-
 const getStatusColor = (status: string) => {
   switch (status) {
     case "pending":
@@ -419,6 +345,28 @@ export default function OrdersManagement() {
                 ))}
               </TableBody>
             </Table>
+            {/* Pagination Controls */}
+            {orders.length > 0 && (
+                <div className="flex justify-center items-center gap-4 mt-6 mb-2">
+                  <Button
+                      variant="outline"
+                      disabled={page === 1}
+                      onClick={() => setPage(page - 1)}
+                  >
+                    Previous
+                  </Button>
+                  <span className="text-gray-600">
+                                    Page {page} of {totalPages}
+                                </span>
+                  <Button
+                      variant="outline"
+                      disabled={page === totalPages}
+                      onClick={() => setPage(page + 1)}
+                  >
+                    Next
+                  </Button>
+                </div>
+            )}
           </div>
         </CardContent>
       </Card>

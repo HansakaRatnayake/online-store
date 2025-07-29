@@ -54,7 +54,7 @@ router.get("/customers", async (req: Request, res: Response) => {
         const pageNum = parseInt(page as string, 10);
         const limitNum = parseInt(limit as string, 10);
 
-        const totalCount = await User.countDocuments(query); // 👈 count total results
+        const totalCount = await User.countDocuments({ role: "customer" }); // 👈 count total results
         const totalPages = Math.ceil(totalCount / limitNum);
 
         const customers = await User.find({ role: "customer" })
@@ -141,5 +141,36 @@ router.put("/:id", async (req: Request, res: Response) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
+// GET /api/users/status-count
+router.get("/status-count", async (req: Request, res: Response) => {
+    try {
+        await connectToDatabase();
+
+        const result = await User.aggregate([
+            {
+                $match: { role: "customer" }
+            },
+            {
+                $group: {
+                    _id: "$status",
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+
+        // Format response as { Active: 3, Inactive: 2, Blocked: 1 }
+        const counts = result.reduce((acc, item) => {
+            acc[item._id] = item.count;
+            return acc;
+        }, {} as Record<string, number>);
+
+        res.json(counts);
+    } catch (error) {
+        console.error("Error getting status count:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 
 export default router;
