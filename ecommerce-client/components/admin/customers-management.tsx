@@ -22,87 +22,92 @@ import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "../providers/auth-provider"
 
 
-const mockCustomers = [
-  {
-    id: 1,
-    name: "John Doe",
-    email: "john@example.com",
-    phone: "+1 (555) 123-4567",
-    avatar: "/placeholder.svg?height=40&width=40",
-    status: "active",
-    joinDate: "2024-01-15",
-    lastOrder: "2024-01-20",
-    totalOrders: 12,
-    totalSpent: 2459.88,
-    address: "123 Main St, New York, NY 10001",
-    orders: [
-      { id: "ORD-001", date: "2024-01-20", total: 299.99, status: "delivered" },
-      { id: "ORD-015", date: "2024-01-10", total: 159.99, status: "delivered" },
-    ],
-  },
-  {
-    id: 2,
-    name: "Sarah Smith",
-    email: "sarah@example.com",
-    phone: "+1 (555) 987-6543",
-    avatar: "/placeholder.svg?height=40&width=40",
-    status: "active",
-    joinDate: "2024-01-10",
-    lastOrder: "2024-01-18",
-    totalOrders: 8,
-    totalSpent: 1299.92,
-    address: "456 Oak Ave, Los Angeles, CA 90210",
-    orders: [
-      { id: "ORD-002", date: "2024-01-18", total: 199.99, status: "delivered" },
-      { id: "ORD-012", date: "2024-01-05", total: 89.99, status: "delivered" },
-    ],
-  },
-  {
-    id: 3,
-    name: "Mike Johnson",
-    email: "mike@example.com",
-    phone: "+1 (555) 456-7890",
-    avatar: "/placeholder.svg?height=40&width=40",
-    status: "inactive",
-    joinDate: "2023-12-20",
-    lastOrder: "2024-01-16",
-    totalOrders: 15,
-    totalSpent: 3299.85,
-    address: "789 Pine St, Chicago, IL 60601",
-    orders: [
-      { id: "ORD-003", date: "2024-01-16", total: 249.99, status: "delivered" },
-      { id: "ORD-008", date: "2023-12-28", total: 399.99, status: "delivered" },
-    ],
-  },
-  {
-    id: 4,
-    name: "Emily Brown",
-    email: "emily@example.com",
-    phone: "+1 (555) 321-0987",
-    avatar: "/placeholder.svg?height=40&width=40",
-    status: "blocked",
-    joinDate: "2023-11-15",
-    lastOrder: "2024-01-12",
-    totalOrders: 3,
-    totalSpent: 189.97,
-    address: "321 Elm St, Miami, FL 33101",
-    orders: [{ id: "ORD-004", date: "2024-01-12", total: 89.99, status: "cancelled" }],
-  },
-]
+// const mockCustomers = [
+//   {
+//     id: 1,
+//     name: "John Doe",
+//     email: "john@example.com",
+//     phone: "+1 (555) 123-4567",
+//     avatar: "/placeholder.svg?height=40&width=40",
+//     status: "active",
+//     joinDate: "2024-01-15",
+//     lastOrder: "2024-01-20",
+//     totalOrders: 12,
+//     totalSpent: 2459.88,
+//     address: "123 Main St, New York, NY 10001",
+//     orders: [
+//       { id: "ORD-001", date: "2024-01-20", total: 299.99, status: "delivered" },
+//       { id: "ORD-015", date: "2024-01-10", total: 159.99, status: "delivered" },
+//     ],
+//   },
+//   {
+//     id: 2,
+//     name: "Sarah Smith",
+//     email: "sarah@example.com",
+//     phone: "+1 (555) 987-6543",
+//     avatar: "/placeholder.svg?height=40&width=40",
+//     status: "active",
+//     joinDate: "2024-01-10",
+//     lastOrder: "2024-01-18",
+//     totalOrders: 8,
+//     totalSpent: 1299.92,
+//     address: "456 Oak Ave, Los Angeles, CA 90210",
+//     orders: [
+//       { id: "ORD-002", date: "2024-01-18", total: 199.99, status: "delivered" },
+//       { id: "ORD-012", date: "2024-01-05", total: 89.99, status: "delivered" },
+//     ],
+//   },
+//   {
+//     id: 3,
+//     name: "Mike Johnson",
+//     email: "mike@example.com",
+//     phone: "+1 (555) 456-7890",
+//     avatar: "/placeholder.svg?height=40&width=40",
+//     status: "inactive",
+//     joinDate: "2023-12-20",
+//     lastOrder: "2024-01-16",
+//     totalOrders: 15,
+//     totalSpent: 3299.85,
+//     address: "789 Pine St, Chicago, IL 60601",
+//     orders: [
+//       { id: "ORD-003", date: "2024-01-16", total: 249.99, status: "delivered" },
+//       { id: "ORD-008", date: "2023-12-28", total: 399.99, status: "delivered" },
+//     ],
+//   },
+//   {
+//     id: 4,
+//     name: "Emily Brown",
+//     email: "emily@example.com",
+//     phone: "+1 (555) 321-0987",
+//     avatar: "/placeholder.svg?height=40&width=40",
+//     status: "blocked",
+//     joinDate: "2023-11-15",
+//     lastOrder: "2024-01-12",
+//     totalOrders: 3,
+//     totalSpent: 189.97,
+//     address: "321 Elm St, Miami, FL 33101",
+//     orders: [{ id: "ORD-004", date: "2024-01-12", total: 89.99, status: "cancelled" }],
+//   },
+// ]
 
 export default function CustomersManagement() {
-  const [customers, setCustomers] = useState(mockCustomers)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null)
   const { toast } = useToast();
   const { token } =useAuth();
 
+  const [activeCount, setActiveCount] = useState(0);
+  const [inactiveCount, setInactiveCount] = useState(0);
+  const [blockedCount, setBlockedCount] = useState(0);
+
+
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalCustomers, setTotalCustomers] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true)
-  const [customerss, setCustomerss] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<any[]>([]);
 
   useEffect(() => {
 
@@ -118,20 +123,38 @@ export default function CustomersManagement() {
 
         // Fetch Customers
         const customerResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/customers?${query}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+          // method: "GET",
+          // headers: {
+          //   "Content-Type": "application/json",
+          //   Authorization: `Bearer ${token}`,
+          // },
         });
         if (!customerResponse.ok) {
-          throw new Error("Failed to fetch orders!");
+          throw new Error("Failed to fetch Customers!");
         }
         const customerData = await customerResponse.json();
 
-        setCustomerss(customerData.users);
+        setCustomers(customerData.customers);
 
         setTotalPages(customerData.totalPages);
+        setTotalCustomers(customerData.totalCount);
+
+        // Fetch Status Count
+        const customerStatusResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/status-count`, {
+          // method: "GET",
+          // headers: {
+          //   "Content-Type": "application/json",
+          //   Authorization: `Bearer ${token}`,
+          // },
+        });
+        if (!customerStatusResponse.ok) {
+          throw new Error("Failed to fetch Customer Status!");
+        }
+        const customerStatusData = await customerStatusResponse.json();
+
+        setActiveCount(customerStatusData.Active ?? 0);
+        setBlockedCount(customerStatusData.Blocked ?? 0);
+        setInactiveCount(customerStatusData.Inactive ?? 0);
 
         setIsLoading(false);
       } catch (err) {
@@ -142,41 +165,71 @@ export default function CustomersManagement() {
     }
 
     fetchData();
-  }, [page,token]);
+  }, [page,token,customers]);
 
-  const filteredCustomers = customers.filter((customer) => {
-    const matchesSearch =
-      customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.email.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === "all" || customer.status === statusFilter
-    return matchesSearch && matchesStatus
-  })
+  // const filteredCustomers = customerss.filter((customer) => {
+  //   const matchesSearch =
+  //     customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     customer.email.toLowerCase().includes(searchTerm.toLowerCase())
+  //   const matchesStatus = statusFilter === "all" || customer.status === statusFilter
+  //   return matchesSearch && matchesStatus
+  // })
 
-  const handleStatusUpdate = (customerId: number, newStatus: string) => {
-    setCustomers(
-      customers.map((customer) => (customer.id === customerId ? { ...customer, status: newStatus } : customer)),
-    )
-    toast({
-      title: "Customer status updated",
-      description: `Customer status changed to ${newStatus}`,
-    })
-  }
+  const handleStatusUpdate = async (customerId: string, newStatus: string) => {
+    try {
+      // Make API call to update user status
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${customerId}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // assuming you get token from useAuth
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update customer status");
+      }
+
+      const updatedCustomer = await response.json();
+
+      // Update local state
+      setCustomers(prev =>
+          prev.map((customer) =>
+              customer._id === customerId ? { ...customer, status: updatedCustomer.status } : customer
+          )
+      );
+
+      toast({
+        title: "Customer status updated",
+        description: `Customer status changed to ${updatedCustomer.status}`,
+      });
+    } catch (error) {
+      console.error("Error updating customer status:", error);
+      toast({
+        title: "Update failed",
+        description: "Could not update customer status. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
 
   const customerStats = {
     total: customers.length,
-    active: customers.filter((c) => c.status === "active").length,
-    inactive: customers.filter((c) => c.status === "inactive").length,
-    blocked: customers.filter((c) => c.status === "blocked").length,
+    active: customers.filter((c) => c.status === "Active").length,
+    inactive: customers.filter((c) => c.status === "Inactive").length,
+    blocked: customers.filter((c) => c.status === "Blocked").length,
     totalRevenue: customers.reduce((sum, c) => sum + c.totalSpent, 0),
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "active":
+      case "Active":
         return "bg-green-100 text-green-800"
-      case "inactive":
+      case "Inactive":
         return "bg-gray-100 text-gray-800"
-      case "blocked":
+      case "Blocked":
         return "bg-red-100 text-red-800"
       default:
         return "bg-gray-100 text-gray-800"
@@ -185,12 +238,12 @@ export default function CustomersManagement() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "active":
+      case "Active":
         return <CheckCircle className="w-3 h-3" />
-      case "blocked":
+      case "Blocked":
         return <Ban className="w-3 h-3" />
       default:
-        return null
+        return <Ban className="w-3 h-3" />
     }
   }
 
@@ -203,7 +256,7 @@ export default function CustomersManagement() {
         <Card>
           <CardContent className="p-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-gray-900">{customerStats.total}</p>
+              <p className="text-2xl font-bold text-gray-900">{totalCustomers}</p>
               <p className="text-sm text-gray-600">Total Customers</p>
             </div>
           </CardContent>
@@ -211,7 +264,7 @@ export default function CustomersManagement() {
         <Card>
           <CardContent className="p-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-green-600">{customerStats.active}</p>
+              <p className="text-2xl font-bold text-green-600">{activeCount}</p>
               <p className="text-sm text-gray-600">Active</p>
             </div>
           </CardContent>
@@ -219,7 +272,7 @@ export default function CustomersManagement() {
         <Card>
           <CardContent className="p-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-gray-600">{customerStats.inactive}</p>
+              <p className="text-2xl font-bold text-gray-600">{inactiveCount}</p>
               <p className="text-sm text-gray-600">Inactive</p>
             </div>
           </CardContent>
@@ -227,7 +280,7 @@ export default function CustomersManagement() {
         <Card>
           <CardContent className="p-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-red-600">{customerStats.blocked}</p>
+              <p className="text-2xl font-bold text-red-600">{blockedCount}</p>
               <p className="text-sm text-gray-600">Blocked</p>
             </div>
           </CardContent>
@@ -235,7 +288,7 @@ export default function CustomersManagement() {
         <Card>
           <CardContent className="p-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-blue-600">${customerStats.totalRevenue.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-blue-600">$0</p>
               <p className="text-sm text-gray-600">Total Revenue</p>
             </div>
           </CardContent>
@@ -265,9 +318,9 @@ export default function CustomersManagement() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-                <SelectItem value="blocked">Blocked</SelectItem>
+                <SelectItem value="Active">Active</SelectItem>
+                <SelectItem value="Inactive">Inactive</SelectItem>
+                <SelectItem value="Blocked">Blocked</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -279,16 +332,16 @@ export default function CustomersManagement() {
                 <TableRow>
                   <TableHead>Customer</TableHead>
                   <TableHead>Contact</TableHead>
-                  <TableHead>Orders</TableHead>
-                  <TableHead>Total Spent</TableHead>
+                  {/*<TableHead>Orders</TableHead>*/}
+                  {/*<TableHead>Total Spent</TableHead>*/}
                   <TableHead>Status</TableHead>
                   <TableHead>Join Date</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredCustomers.map((customer) => (
-                  <TableRow key={customer.id}>
+                {customers.map((customer) => (
+                  <TableRow key={customer._id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Image
@@ -300,7 +353,7 @@ export default function CustomersManagement() {
                         />
                         <div>
                           <p className="font-medium">{customer.name}</p>
-                          <p className="text-sm text-gray-500">ID: {customer.id}</p>
+                          <p className="text-sm text-gray-500 truncate">ID: {customer._id}</p>
                         </div>
                       </div>
                     </TableCell>
@@ -312,26 +365,26 @@ export default function CustomersManagement() {
                         </div>
                         <div className="flex items-center gap-1 text-sm">
                           <Phone className="w-3 h-3" />
-                          {customer.phone}
+                          {customer.mobileNo ?? "+94 76 652 9831"}
                         </div>
                       </div>
                     </TableCell>
+                    {/*<TableCell>*/}
+                    {/*  <div className="text-center">*/}
+                    {/*    <p className="font-medium">{customer.totalOrders}</p>*/}
+                    {/*    <p className="text-sm text-gray-500">orders</p>*/}
+                    {/*  </div>*/}
+                    {/*</TableCell>*/}
+                    {/*<TableCell className="font-medium">${customer.totalSpent.toFixed(2)}</TableCell>*/}
                     <TableCell>
-                      <div className="text-center">
-                        <p className="font-medium">{customer.totalOrders}</p>
-                        <p className="text-sm text-gray-500">orders</p>
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium">${customer.totalSpent.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <Badge className={getStatusColor(customer.status)}>
+                      <Badge className={getStatusColor(customer.status ?? "Active" )}>
                         <div className="flex items-center gap-1">
-                          {getStatusIcon(customer.status)}
-                          {customer.status}
+                          {getStatusIcon(customer.status ?? "Active")}
+                          {customer.status ?? "Active"}
                         </div>
                       </Badge>
                     </TableCell>
-                    <TableCell>{new Date(customer.joinDate).toLocaleDateString()}</TableCell>
+                    <TableCell>{new Date(customer.createdAt).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Dialog>
@@ -365,9 +418,9 @@ export default function CustomersManagement() {
                                       />
                                       <div>
                                         <h3 className="text-lg font-semibold">{selectedCustomer.name}</h3>
-                                        <p className="text-gray-600">Customer ID: {selectedCustomer.id}</p>
-                                        <Badge className={getStatusColor(selectedCustomer.status)}>
-                                          {selectedCustomer.status}
+                                        <p className="text-gray-600">Customer ID: {selectedCustomer._id}</p>
+                                        <Badge className={getStatusColor(selectedCustomer.status ?? "Active")}>
+                                          {selectedCustomer.status ?? "Active"}
                                         </Badge>
                                       </div>
                                     </div>
@@ -381,11 +434,11 @@ export default function CustomersManagement() {
                                           </div>
                                           <div className="flex items-center gap-2">
                                             <Phone className="w-4 h-4" />
-                                            {selectedCustomer.phone}
+                                            {selectedCustomer.mobileNo ?? "+94 234 1829"}
                                           </div>
                                           <div className="flex items-center gap-2">
                                             <MapPin className="w-4 h-4" />
-                                            {selectedCustomer.address}
+                                            {/*{selectedCustomer.address}*/}
                                           </div>
                                         </div>
                                       </div>
@@ -394,60 +447,60 @@ export default function CustomersManagement() {
                                         <div className="space-y-2 text-sm">
                                           <div className="flex items-center gap-2">
                                             <Calendar className="w-4 h-4" />
-                                            Joined: {new Date(selectedCustomer.joinDate).toLocaleDateString()}
+                                            Joined: {new Date(selectedCustomer.createdAt).toLocaleDateString()}
                                           </div>
                                           <div className="flex items-center gap-2">
                                             <ShoppingBag className="w-4 h-4" />
-                                            {selectedCustomer.totalOrders} total orders
+                                            {/*{selectedCustomer.totalOrders} total orders*/}
                                           </div>
                                           <p>
-                                            <strong>Total Spent:</strong> ${selectedCustomer.totalSpent.toFixed(2)}
+                                            {/*<strong>Total Spent:</strong> ${selectedCustomer.totalSpent.toFixed(2)}*/}
                                           </p>
                                           <p>
                                             <strong>Last Order:</strong>{" "}
-                                            {new Date(selectedCustomer.lastOrder).toLocaleDateString()}
+                                            {/*{new Date(selectedCustomer.lastOrder).toLocaleDateString()}*/}
                                           </p>
                                         </div>
                                       </div>
                                     </div>
                                   </TabsContent>
 
-                                  <TabsContent value="orders" className="space-y-4">
-                                    <div className="space-y-3">
-                                      {selectedCustomer.orders.map((order: any) => (
-                                        <div
-                                          key={order.id}
-                                          className="flex justify-between items-center p-3 border rounded"
-                                        >
-                                          <div>
-                                            <p className="font-medium">{order.id}</p>
-                                            <p className="text-sm text-gray-500">
-                                              {new Date(order.date).toLocaleDateString()}
-                                            </p>
-                                          </div>
-                                          <div className="text-right">
-                                            <p className="font-medium">${order.total.toFixed(2)}</p>
-                                            <Badge className={getStatusColor(order.status)}>{order.status}</Badge>
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </TabsContent>
+                                  {/*<TabsContent value="orders" className="space-y-4">*/}
+                                  {/*  <div className="space-y-3">*/}
+                                  {/*    {selectedCustomer.orders.map((order: any) => (*/}
+                                  {/*      <div*/}
+                                  {/*        key={order.id}*/}
+                                  {/*        className="flex justify-between items-center p-3 border rounded"*/}
+                                  {/*      >*/}
+                                  {/*        <div>*/}
+                                  {/*          <p className="font-medium">{order.id}</p>*/}
+                                  {/*          <p className="text-sm text-gray-500">*/}
+                                  {/*            {new Date(order.date).toLocaleDateString()}*/}
+                                  {/*          </p>*/}
+                                  {/*        </div>*/}
+                                  {/*        <div className="text-right">*/}
+                                  {/*          <p className="font-medium">${order.total.toFixed(2)}</p>*/}
+                                  {/*          <Badge className={getStatusColor(order.status)}>{order.status}</Badge>*/}
+                                  {/*        </div>*/}
+                                  {/*      </div>*/}
+                                  {/*    ))}*/}
+                                  {/*  </div>*/}
+                                  {/*</TabsContent>*/}
 
                                   <TabsContent value="settings" className="space-y-4">
                                     <div>
                                       <h4 className="font-medium mb-2">Account Status</h4>
                                       <Select
-                                        value={selectedCustomer.status}
-                                        onValueChange={(value) => handleStatusUpdate(selectedCustomer.id, value)}
+                                        value={selectedCustomer.status ?? "Active"}
+                                        onValueChange={(value) => handleStatusUpdate(selectedCustomer._id, value)}
                                       >
                                         <SelectTrigger className="w-48">
                                           <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
-                                          <SelectItem value="active">Active</SelectItem>
-                                          <SelectItem value="inactive">Inactive</SelectItem>
-                                          <SelectItem value="blocked">Blocked</SelectItem>
+                                          <SelectItem value="Active">Active</SelectItem>
+                                          <SelectItem value="Inactive">Inactive</SelectItem>
+                                          <SelectItem value="Blocked">Blocked</SelectItem>
                                         </SelectContent>
                                       </Select>
                                     </div>
@@ -470,16 +523,16 @@ export default function CustomersManagement() {
                           </DialogContent>
                         </Dialog>
                         <Select
-                          value={customer.status}
-                          onValueChange={(value) => handleStatusUpdate(customer.id, value)}
+                          value={customer.status ?? "Active"}
+                          onValueChange={(value) => handleStatusUpdate(customer._id, value)}
                         >
                           <SelectTrigger className="w-32">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="active">Active</SelectItem>
-                            <SelectItem value="inactive">Inactive</SelectItem>
-                            <SelectItem value="blocked">Blocked</SelectItem>
+                            <SelectItem value="Active">Active</SelectItem>
+                            <SelectItem value="Inactive">Inactive</SelectItem>
+                            <SelectItem value="Blocked">Blocked</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -488,6 +541,28 @@ export default function CustomersManagement() {
                 ))}
               </TableBody>
             </Table>
+            {/* Pagination Controls */}
+            {customers.length > 0 && (
+                <div className="flex justify-center items-center gap-4 mt-6 mb-2">
+                  <Button
+                      variant="outline"
+                      disabled={page === 1}
+                      onClick={() => setPage(page - 1)}
+                  >
+                    Previous
+                  </Button>
+                  <span className="text-gray-600">
+                                    Page {page} of {totalPages}
+                                </span>
+                  <Button
+                      variant="outline"
+                      disabled={page === totalPages}
+                      onClick={() => setPage(page + 1)}
+                  >
+                    Next
+                  </Button>
+                </div>
+            )}
           </div>
         </CardContent>
       </Card>
