@@ -138,43 +138,42 @@ export default function OrdersManagement() {
   const { toast } = useToast()
   const { user, token } = useAuth();
 
+  async function fetchData() {
+    try {
+
+      const query = new URLSearchParams({
+        page: page.toString(),
+        limit: "10",
+      }).toString()
+
+      // Fetch Orders
+      const OrderResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders?${query}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!OrderResponse.ok) {
+        throw new Error("Failed to fetch orders!");
+      }
+      const orderData = await OrderResponse.json();
+
+      setOrders(orderData.orders);
+
+      setTotalPages(orderData.totalPages);
+
+      setIsLoading(false);
+    } catch (err) {
+      setError("Error fetching data");
+      setIsLoading(false);
+      console.error(err);
+    }
+  }
+
   useEffect(() => {
 
     if (!token) return;
-
-    async function fetchData() {
-      try {
-
-        const query = new URLSearchParams({
-          page: page.toString(),
-          limit: "10",
-        }).toString()
-
-        // Fetch Orders
-        const OrderResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders?${query}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!OrderResponse.ok) {
-          throw new Error("Failed to fetch orders!");
-        }
-        const orderData = await OrderResponse.json();
-
-        setOrders(orderData.orders);
-
-        setTotalPages(orderData.totalPages);
-
-        setIsLoading(false);
-      } catch (err) {
-        setError("Error fetching data");
-        setIsLoading(false);
-        console.error(err);
-      }
-    }
-
     fetchData();
   }, [page,token]);
 
@@ -186,16 +185,28 @@ export default function OrdersManagement() {
     return matchesSearch && matchesStatus
   })
 
-  const handleStatusUpdate = (orderNumber: string, newStatus: string) => {
-    setOrders((prev) =>
-        prev.map((order) =>
-            order.orderNumber === orderNumber ? { ...order, status: newStatus } : order
-        )
-    )
+  const handleStatusUpdate = async (order:any, newStatus:any) => {
+    // setOrders((prev) =>
+    //     prev.map((order) =>
+    //         order.orderNumber === orderNumber ? { ...order, status: newStatus } : order
+    //     )
+    // )
+
+
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/${order._id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ status: newStatus }),
+    })
     toast({
       title: "Order updated",
-      description: `Order ${orderNumber} status changed to ${newStatus}`,
+      description: `Order ${order.orderNumber} status changed to ${newStatus}`,
     })
+    await fetchData();
   }
 
   const orderStats = {
@@ -401,7 +412,7 @@ export default function OrdersManagement() {
                             </DialogContent>
                           </Dialog>
 
-                          <Select value={order.status} onValueChange={(val) => handleStatusUpdate(order.orderNumber, val)}>
+                          <Select value={order.status} onValueChange={(val) => handleStatusUpdate(order,val)}>
                             <SelectTrigger className="w-32">
                               <SelectValue />
                             </SelectTrigger>
@@ -410,7 +421,7 @@ export default function OrdersManagement() {
                               <SelectItem value="processing">Processing</SelectItem>
                               <SelectItem value="shipped">Shipped</SelectItem>
                               <SelectItem value="delivered">Delivered</SelectItem>
-                              <SelectItem value="cancelled">Cancelled</SelectItem>
+                              <SelectItem value="cancelledd">Cancelled</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>

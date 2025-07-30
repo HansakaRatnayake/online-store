@@ -1,10 +1,11 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import {User} from '@/models/User';
-import * as process from "node:process";
-import {sendEmail} from "../utils/emailservice"
-import {generateWelcomeEmail} from "@/utils/templates/welcomeemail";
+import { User } from '@/models/User';
+import * as process from 'node:process';
+import { sendEmail } from '../utils/emailservice';
+import { generateWelcomeEmail } from '@/utils/templates/welcomeemail';
+import { authenticate, isAdmin } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -13,7 +14,7 @@ const jwt_secret = process.env.JWT_SECRET as string || 'MIIBIjANBgkqhkiG9w0BAQEF
 // Register route
 router.post('/register', async (req, res) => {
     try {
-        const { name, email, password, avatar } = req.body;
+        const { name, email, password, avatar, mobileNo, address } = req.body;
 
         // Validate input
         if (!name || !email || !password) {
@@ -40,6 +41,9 @@ router.post('/register', async (req, res) => {
             password: hashedPassword,
             role: 'customer',
             avatar: avatar || '/placeholder.svg?height=40&width=40',
+            mobileNo,
+            address,
+            status: 'active',
         });
 
         await newUser.save();
@@ -62,9 +66,20 @@ router.post('/register', async (req, res) => {
             email: newUser.email,
             role: newUser.role,
             avatar: newUser.avatar,
+            phone: newUser.mobileNo || "",
+            address: newUser.address || "",
+            status: newUser.status,
+            joinDate: newUser.createdAt,
         };
 
-        sendEmail(email,"🎉 Welcome to Smart Cart!","",generateWelcomeEmail(name));
+        res.cookie('token', token, {
+            httpOnly: true,
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            path: '/',
+        });
+
+        sendEmail(email, '🎉 Welcome to Smart Cart!', '', generateWelcomeEmail(name));
 
         res.status(201).json({
             user: userResponse,
@@ -117,7 +132,18 @@ router.post('/login', async (req, res) => {
             email: user.email,
             role: user.role,
             avatar: user.avatar,
+            phone: user.mobileNo || "",
+            address: user.address || "",
+            status: user.status,
+            joinDate: user.createdAt,
         };
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            path: '/',
+        });
 
         res.json({
             user: userResponse,
@@ -126,6 +152,29 @@ router.post('/login', async (req, res) => {
         });
     } catch (error) {
         console.error('Login error:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Make admin route
+router.post('/make-admin', authenticate, isAdmin, async (req, res) => {
+    try {
+        const { userId } = req.body;
+        if (!userId) {
+            return res.status(400).json({ message: 'User ID is required' });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.role = 'admin';
+        await user.save();
+
+        res.json({ message: 'User promoted to admin', user: { id: user._id, email: user.email, role: user.role } });
+    } catch (error) {
+        console.error('Make admin error:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });

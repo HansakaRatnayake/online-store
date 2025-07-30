@@ -1,80 +1,85 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Eye, Package, Truck } from "lucide-react";
+import { useEffect, useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Eye, Package, Truck, CheckCircle, XCircle, RefreshCw } from "lucide-react"
+import { useAuth } from "@/components/providers/auth-provider"
 
 const getStatusColor = (status: string) => {
   switch (status) {
     case "pending":
-      return "bg-yellow-100 text-yellow-800";
+      return "bg-yellow-100 text-yellow-800"
     case "processing":
-      return "bg-blue-100 text-blue-800";
+      return "bg-blue-100 text-blue-800"
     case "shipped":
-      return "bg-purple-100 text-purple-800";
+      return "bg-purple-100 text-purple-800"
     case "delivered":
-      return "bg-green-100 text-green-800";
+      return "bg-green-100 text-green-800"
+    case "cancelled":
+      return "bg-red-100 text-red-800"
     default:
-      return "bg-gray-100 text-gray-800";
+      return "bg-gray-100 text-gray-800"
   }
-};
+}
 
 const getStatusIcon = (status: string) => {
   switch (status) {
+    case "pending":
+      return <Package className="w-3 h-3" />
     case "processing":
-      return <Package className="w-3 h-3" />;
+      return <RefreshCw className="w-3 h-3" />
     case "shipped":
-      return <Truck className="w-3 h-3" />;
+      return <Truck className="w-3 h-3" />
     case "delivered":
-      return <Package className="w-3 h-3" />;
+      return <CheckCircle className="w-3 h-3" />
+    case "cancelled":
+      return <XCircle className="w-3 h-3" />
     default:
-      return null;
+      return <Package className="w-3 h-3" />
   }
-};
+}
 
 export default function RecentOrders() {
-  const [token, setToken] = useState<string | null>(null);
-  const [recentOrders, setRecentOrders] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [recentOrders, setRecentOrders] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const { token } = useAuth()
 
   useEffect(() => {
-    // Only run on client
-    const storedToken = localStorage.getItem("token");
-    setToken(storedToken);
-  }, []);
-
-  useEffect(() => {
-    if (!token) return;
+    if (!token) {
+      setError("Authentication required")
+      setIsLoading(false)
+      return
+    }
 
     async function fetchData() {
       try {
-        const query = new URLSearchParams({ page: "1", limit: "5" }).toString();
+        const query = new URLSearchParams({ page: "1", limit: "5" }).toString()
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders?${query}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        });
+        })
 
-        if (!res.ok) throw new Error("Failed to fetch orders");
-        const data = await res.json();
-        setRecentOrders(data.orders);
-      } catch (err) {
-        console.error(err);
-        setError("Failed to fetch orders");
-      } finally {
-        setIsLoading(false);
+        if (!res.ok) throw new Error("Failed to fetch orders")
+        const data = await res.json()
+        setRecentOrders(data.orders)
+        setIsLoading(false)
+      } catch (err: any) {
+        console.error(err)
+        setError(err.message || "Failed to fetch orders")
+        setIsLoading(false)
       }
     }
 
-    fetchData();
-  }, [token]);
+    fetchData()
+  }, [token])
 
-  if (!token || isLoading) return <div>Loading orders...</div>;
-  if (error) return <div className="text-red-600">{error}</div>;
+  if (isLoading) return <div>Loading orders...</div>
+  if (error) return <div className="text-red-600">{error}</div>
 
   return (
       <Card>
@@ -102,7 +107,7 @@ export default function RecentOrders() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-lg">${order.total}</p>
+                    <p className="font-semibold text-lg">${order.total.toFixed(2)}</p>
                     <Button variant="ghost" size="sm">
                       <Eye className="w-4 h-4 mr-1" />
                       View
@@ -113,5 +118,5 @@ export default function RecentOrders() {
           </div>
         </CardContent>
       </Card>
-  );
+  )
 }

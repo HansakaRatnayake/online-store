@@ -1,35 +1,174 @@
 import express, { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
 import connectToDatabase from "@/utils/mongodb";
 import { Order } from "@/models/Order";
 import { Product } from "@/models/Product";
-import { Cart } from "@/models/Cart";
-import { Payment } from "@/models/Payment";
-import { authenticate, isCustomer } from "@/middleware/auth";
-import {AuthUser} from "@/types/auth"; // Assume middleware is in a separate file
-
+import { User } from "@/models/User";
+import {authenticate, isAdmin, isCustomer} from "@/middleware/auth";
 
 const router = express.Router();
 
+// GET /api/admin/stats - Get dashboard statistics (admin only)
+router.get("/stats", authenticate, isAdmin, async (req: Request, res: Response) => {
+    try {
+        await connectToDatabase();
 
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+
+        // Total Revenue (delivered orders)
+        const currentRevenue = await Order.aggregate([
+            { $match: { status: "delivered", createdAt: { $gte: startOfMonth } } },
+            { $group: { _id: null, total: { $sum: "$total" } } },
+        ]);
+        const lastMonthRevenue = await Order.aggregate([
+            { $match: { status: "delivered", createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth } } },
+            { $group: { _id: null, total: { $sum: "$total" } } },
+        ]);
+
+        // Orders
+        const currentOrders = await Order.countDocuments({ createdAt: { $gte: startOfMonth } });
+        const lastMonthOrders = await Order.countDocuments({
+            createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth },
+        });
+
+        // Customers
+        const totalCustomers = await User.countDocuments({ role: "customer" });
+        const newCustomers = await User.countDocuments({
+            role: "customer",
+            createdAt: { $gte: startOfMonth },
+        });
+        const lastMonthNewCustomers = await User.countDocuments({
+            role: "customer",
+            createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth },
+        });
+
+        // Products
+        const totalProducts = await Product.countDocuments({ status: "active" });
+        const newProducts = await Product.countDocuments({
+            status: "active",
+            createdAt: { $gte: startOfMonth },
+        });
+        const lastMonthNewProducts = await Product.countDocuments({
+            status: "active",
+            createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth },
+        });
+
+        const stats = [
+            {
+                title: "Total Revenue",
+                value: `$${(currentRevenue[0]?.total || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                change: lastMonthRevenue[0]?.total
+                    ? (((currentRevenue[0]?.total || 0) - lastMonthRevenue[0].total) / lastMonthRevenue[0].total * 100).toFixed(1) + "%"
+                    : "0.0%",
+                trend: lastMonthRevenue[0]?.total ? (currentRevenue[0]?.total >= lastMonthRevenue[0].total ? "up" : "down") : "up",
+                icon: "DollarSign",
+                description: "from last month",
+            },
+            {
+                title: "Orders",
+                value: currentOrders.toLocaleString(),
+                change: lastMonthOrders
+                    ? ((currentOrders - lastMonthOrders) / lastMonthOrders * 100).toFixed(1) + "%"
+                    : "0.0%",
+                trend: lastMonthOrders ? (currentOrders >= lastMonthOrders ? "up" : "down") : "up",
+                icon: "ShoppingCart",
+                description: "from last month",
+            },
+            {
+                title: "Customers",
+                value: totalCustomers.toLocaleString(),
+                change: lastMonthNewCustomers
+                    ? ((newCustomers - lastMonthNewCustomers) / lastMonthNewCustomers * 100).toFixed(1) + "%"
+                    : "0.0%",
+                trend: lastMonthNewCustomers ? (newCustomers >= lastMonthNewCustomers ? "up" : "down") : "up",
+                icon: "Users",
+                description: "from last month",
+            },
+            {
+                title: "Products",
+                value: totalProducts.toLocaleString(),
+                change: lastMonthNewProducts
+                    ? ((newProducts - lastMonthNewProducts) / lastMonthNewProducts * 100).toFixed(1) + "%"
+                    : "0.0%",
+                trend: lastMonthNewProducts ? (newProducts >= lastMonthNewProducts ? "up" : "down") : "up",
+                icon: "Package",
+                description: "from last month",
+            },
+        ];
+
+        res.json(stats);
+    } catch (error) {
+        console.error("Error fetching dashboard stats:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+// GET /api/admin/sales - Get sales data for the last 6 months (admin only)
+router.get("/sales", authenticate, isAdmin, async (req: Request, res: Response) => {
+    try {
+        await connectToDatabase();
+
+        const now = new Date();
+        const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+
+        const salesData = await Order.aggregate([
+            {
+                $match: {
+                    status: "delivered",
+                    createdAt: { $gte: sixMonthsAgo },
+                },
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$createdAt" },
+                        month: { $month: "$createdAt" },
+                    },
+                    sales: { $sum: "$total" },
+                    orders: { $sum: 1 },
+                },
+            },
+            {
+                $sort: { "_id.year": 1, "_id.month": 1 },
+            },
+            {
+                $project: {
+                    month: {
+                        $arrayElemAt: [
+                            ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                            { $subtract: ["$_id.month", 1] },
+                        ],
+                    },
+                    sales: 1,
+                    orders: 1,
+                },
+            },
+        ]);
+
+        res.json(salesData);
+    } catch (error) {
+        console.error("Error fetching sales data:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
 
 // POST /api/orders - Place a new order after payment
 router.post("/", authenticate, isCustomer, async (req: Request, res: Response) => {
     try {
         await connectToDatabase();
 
-        const { items, shippingAddress, discount=0 } = req.body;
-        const userId = (req.user as AuthUser).userId;
+        const { items, shippingAddress, discount = 0 } = req.body;
+        const userId = req.user!.userId;
 
-        if (!items || !shippingAddress ) {
+        if (!items || !shippingAddress) {
             return res.status(400).json({ error: "Missing required fields" });
         }
 
         const enrichedItems = [];
-
         for (const item of items) {
             const product = await Product.findOne({ id: parseInt(item.id) });
-
             if (!product || !product.inStock || product.stockCount < item.quantity) {
                 return res.status(400).json({ error: `Product ${item.id} is out of stock or has insufficient quantity` });
             }
@@ -46,18 +185,15 @@ router.post("/", authenticate, isCustomer, async (req: Request, res: Response) =
             });
         }
 
-        // Pricing calculations
         const subtotal = enrichedItems.reduce((sum, item) => sum + item.quantity * item.price, 0);
         const shipping = subtotal > 100 || enrichedItems.some(item => item.shipping?.free) ? 0 : 9.99;
         const tax = (subtotal - discount) * 0.08;
         const total = subtotal - discount + shipping + tax;
 
-        // Validation before saving
         if ([subtotal, tax, total].some(val => isNaN(val))) {
             return res.status(400).json({ error: "Invalid pricing calculation" });
         }
 
-        // Create the order
         const order = await Order.create({
             userId,
             orderNumber: generateOrderNumber(),
@@ -69,9 +205,9 @@ router.post("/", authenticate, isCustomer, async (req: Request, res: Response) =
             tax,
             total,
             status: "pending",
+            trackingUpdates: [{ status: "pending", date: new Date() }],
         });
 
-        // Update stock
         for (const item of items) {
             await Product.updateOne(
                 { id: parseInt(item.id) },
@@ -79,34 +215,44 @@ router.post("/", authenticate, isCustomer, async (req: Request, res: Response) =
             );
         }
 
-        // Clear cart
-        await Cart.deleteOne({ userId });
-
-        res.status(201).json({ success: true, order });
-
+        res.status(201).json({
+            order: {
+                _id: order._id.toString(),
+                orderNumber: order.orderNumber,
+                userId: order.userId,
+                items: order.items,
+                total: order.total,
+                status: order.status,
+                createdAt: order.createdAt,
+                shippingAddress: order.shippingAddress,
+                trackingNumber: order.trackingNumber,
+            },
+        });
     } catch (error) {
         console.error("Error creating order:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
-const generateOrderNumber = () => {
-    const now = Date.now(); // milliseconds
-    const random = Math.floor(1000 + Math.random() * 9000); // 4-digit random number
-    return `ORD-${now}-${random}`; // e.g., "ORD-1721454361534-8432"
-};
-
 // GET /api/orders/my-orders - Get customer's orders with pagination
 router.get("/my-orders", authenticate, isCustomer, async (req: Request, res: Response) => {
     try {
         await connectToDatabase();
-        const { page = "1", limit = "10" } = req.query;
+        const { page = "1", limit = "10", search = "", status = "all" } = req.query;
         const pageNum = parseInt(page as string, 10);
         const limitNum = parseInt(limit as string, 10);
 
-        const query = { userId: req.user!.userId };
+        let query: any = { userId: req.user!.userId };
+        if (search) {
+            query.orderNumber = { $regex: search as string, $options: "i" };
+        }
+        if (status !== "all") {
+            query.status = status as string;
+        }
+
         const orders = await Order.find(query)
             .select("+trackingUpdates")
+            .sort({ createdAt: -1 })
             .skip((pageNum - 1) * limitNum)
             .limit(limitNum)
             .lean();
@@ -114,7 +260,17 @@ router.get("/my-orders", authenticate, isCustomer, async (req: Request, res: Res
         const total = await Order.countDocuments(query);
 
         res.json({
-            orders,
+            orders: orders.map(order => ({
+                _id: order._id.toString(),
+                orderNumber: order.orderNumber,
+                userId: order.userId,
+                items: order.items,
+                total: order.total,
+                status: order.status,
+                createdAt: order.createdAt,
+                shippingAddress: order.shippingAddress,
+                trackingNumber: order.trackingNumber,
+            })),
             total,
             page: pageNum,
             limit: limitNum,
@@ -127,17 +283,25 @@ router.get("/my-orders", authenticate, isCustomer, async (req: Request, res: Res
 });
 
 // PATCH /api/orders/:id - Update order status (e.g., cancel)
-router.patch("/:id", authenticate, isCustomer, async (req: Request, res: Response) => {
+router.patch("/:id", authenticate, async (req: Request, res: Response) => {
     try {
         await connectToDatabase();
         const { status } = req.body;
         const orderId = req.params.id;
 
-        if (!status || !["cancelled"].includes(status)) {
+        if (!status || !["pending", "processing", "shipped", "delivered", "cancelled"].includes(status)) {
             return res.status(400).json({ error: "Invalid status update" });
         }
 
-        const order = await Order.findOne({ _id: orderId, userId: req.user!.userId });
+        let order;
+        if (req.user?.role == 'customer') {
+            order = await Order.findOne({ _id: orderId, userId: req.user!.userId });
+        }
+
+        if (req.user?.role == 'admin') {
+            order = await Order.findOne({ _id: orderId });
+        }
+
         if (!order) {
             return res.status(404).json({ error: "Order not found" });
         }
@@ -152,7 +316,10 @@ router.patch("/:id", authenticate, isCustomer, async (req: Request, res: Respons
 
         if (status === "cancelled") {
             for (const item of order.items) {
-                await Product.updateOne({ id: item.id }, { $inc: { stockCount: item.quantity }, inStock: true });
+                await Product.updateOne(
+                    { id: item.id },
+                    { $inc: { stockCount: item.quantity }, inStock: true }
+                );
             }
         }
 
@@ -178,26 +345,45 @@ router.get("/:id/tracking", authenticate, isCustomer, async (req: Request, res: 
     }
 });
 
-// Admin route: GET /api/orders - Get all orders (for admin dashboard)
-router.get("/", authenticate, async (req: Request, res: Response) => {
-    if (req.user?.role !== "admin") {
-        return res.status(403).json({ error: "Admin access required" });
-    }
-
+// GET /api/orders - Get all orders with pagination and filters (admin only)
+router.get("/", authenticate, isAdmin, async (req: Request, res: Response) => {
     try {
         await connectToDatabase();
-        const { page = "1", limit = "10" } = req.query;
+        const { page = "1", limit = "10", search = "", status = "all" } = req.query;
         const pageNum = parseInt(page as string, 10);
         const limitNum = parseInt(limit as string, 10);
 
-        const orders = await Order.find()
+        let query: any = {};
+        if (search) {
+            query.$or = [
+                { orderNumber: { $regex: search as string, $options: "i" } },
+                { userId: { $regex: search as string, $options: "i" } },
+            ];
+        }
+        if (status !== "all") {
+            query.status = status as string;
+        }
+
+        const orders = await Order.find(query)
+            .sort({ createdAt: -1 })
             .skip((pageNum - 1) * limitNum)
             .limit(limitNum)
             .lean();
-        const total = await Order.countDocuments();
+
+        const total = await Order.countDocuments(query);
 
         res.json({
-            orders,
+            orders: orders.map(order => ({
+                _id: order._id.toString(),
+                orderNumber: order.orderNumber,
+                userId: order.userId,
+                items: order.items,
+                total: order.total,
+                status: order.status,
+                createdAt: order.createdAt,
+                shippingAddress: order.shippingAddress,
+                trackingNumber: order.trackingNumber,
+            })),
             total,
             page: pageNum,
             limit: limitNum,
@@ -209,35 +395,59 @@ router.get("/", authenticate, async (req: Request, res: Response) => {
     }
 });
 
-// Admin route: PATCH /api/orders/:id/admin - Update order status (admin)
-router.patch("/:id/admin", authenticate, async (req: Request, res: Response) => {
-    if (req.user?.role !== "admin") {
-        return res.status(403).json({ error: "Admin access required" });
-    }
+// GET /api/orders/customer - Get orders for the authenticated customer
+router.get("/customer", authenticate, async (req: Request, res: Response) => {
     try {
         await connectToDatabase();
-        const { status, trackingNumber, trackingUpdate } = req.body;
-        const orderId = req.params.id;
 
-        const order = await Order.findById(orderId);
-        if (!order) {
-            return res.status(404).json({ error: "Order not found" });
+        const { page = "1", limit = "10", search = "", status = "all" } = req.query;
+
+        let query: any = { userId: req.user!.userId };
+        if (search) {
+            query.orderNumber = { $regex: search as string, $options: "i" };
+        }
+        if (status !== "all") {
+            query.status = status as string;
         }
 
-        if (status && ["pending", "processing", "shipped", "delivered", "cancelled"].includes(status)) {
-            order.status = status;
-            order.trackingUpdates.push({ status, date: new Date(), location: trackingUpdate?.location });
-        }
-        if (trackingNumber) {
-            order.trackingNumber = trackingNumber;
-        }
-        await order.save();
+        const pageNum = parseInt(page as string, 10);
+        const limitNum = parseInt(limit as string, 10);
 
-        res.json({ order });
+        const totalCount = await Order.countDocuments(query);
+        const totalPages = Math.ceil(totalCount / limitNum);
+
+        const orders = await Order.find(query)
+            .sort({ createdAt: -1 })
+            .skip((pageNum - 1) * limitNum)
+            .limit(limitNum)
+            .lean();
+
+        res.json({
+            orders: orders.map((order) => ({
+                _id: order._id.toString(),
+                orderNumber: order.orderNumber,
+                userId: order.userId,
+                items: order.items,
+                total: order.total,
+                status: order.status,
+                createdAt: order.createdAt,
+                shippingAddress: order.shippingAddress,
+                trackingNumber: order.trackingNumber,
+            })),
+            currentPage: pageNum,
+            totalPages,
+            totalCount,
+        });
     } catch (error) {
-        console.error("Error updating order:", error);
+        console.error("Error fetching customer orders:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
+const generateOrderNumber = () => {
+    const now = Date.now();
+    const random = Math.floor(1000 + Math.random() * 9000);
+    return `ORD-${now}-${random}`;
+};
 
 export default router;
