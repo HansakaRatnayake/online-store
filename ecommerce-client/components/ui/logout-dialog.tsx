@@ -16,11 +16,13 @@ import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 
 interface LogoutDialogProps {
-  isOpen: boolean
+  isOpen: boolean;
+  onOpenChange: any;
   onClose: () => void
+  onLogout: () => void
 }
 
-export default function LogoutDialog({ isOpen, onClose }: LogoutDialogProps) {
+export default function LogoutDialog({ isOpen,onOpenChange,onLogout, onClose }: LogoutDialogProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const { logout, user } = useAuth()
   const router = useRouter()

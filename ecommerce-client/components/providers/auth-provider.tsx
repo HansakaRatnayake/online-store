@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import type React from "react";
-import { createContext, useContext, useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import type React from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface User {
   id: string;
   name: string;
   email: string;
-  role: "customer" | "admin" | "seller"; // Updated to match User model
+  role: 'customer' | 'admin' | 'seller';
   avatar?: string;
 }
 
@@ -24,15 +24,17 @@ interface AuthContextType {
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const initialToken = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  const initialUser = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+
+  const [user, setUser] = useState<User | null>(initialUser ? JSON.parse(initialUser) : null);
+  const [token, setToken] = useState<string | null>(initialToken);
+  const [isLoading, setIsLoading] = useState(false); // No need for initial loading state
   const router = useRouter();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const storedToken = localStorage.getItem("token");
-
+    const storedUser = localStorage.getItem('user');
+    const storedToken = localStorage.getItem('token');
     if (storedUser && storedToken) {
       setUser(JSON.parse(storedUser));
       setToken(storedToken);
@@ -44,26 +46,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
+        credentials: 'include', // Include cookies for middleware
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Invalid credentials");
+        throw new Error(errorData.message || 'Invalid credentials');
       }
 
       const data = await response.json();
       setUser(data.user);
       setToken(data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      localStorage.setItem("token", data.token);
-      router.push("/");
+      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('token', data.token);
+      router.push('/');
     } catch (error: any) {
-      throw new Error(error.message || "Login failed");
+      throw new Error(error.message || 'Login failed');
     } finally {
       setIsLoading(false);
     }
@@ -73,26 +76,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/register`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ name, email, password }),
+        credentials: 'include', // Include cookies for middleware
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Registration failed");
+        throw new Error(errorData.message || 'Registration failed');
       }
 
       const data = await response.json();
       setUser(data.user);
       setToken(data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      localStorage.setItem("token", data.token);
-      router.push("/");
+      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('token', data.token);
+      router.push('/');
     } catch (error: any) {
-      throw new Error(error.message || "Registration failed");
+      throw new Error(error.message || 'Registration failed');
     } finally {
       setIsLoading(false);
     }
@@ -101,10 +105,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    router.push("/login");
-    location.reload();
+
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    document.cookie = 'token=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0';
+    router.push('/login');
+
   };
 
   return (
@@ -117,7 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 }

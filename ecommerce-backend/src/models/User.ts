@@ -20,8 +20,8 @@ const userSchema = new mongoose.Schema({
         default: 'customer',
     },
     avatar: {
-        type: String,
-        default: '/placeholder.svg?height=40&width=40',
+        type: Buffer, // Store image as binary data
+        default: null,
     },
     mobileNo: {
         type: String,
@@ -32,10 +32,19 @@ const userSchema = new mongoose.Schema({
     dob: {
         type: Date,
     },
+    address: {
+        type: String,
+    },
     status: {
         type: String,
-        enum: ['Active', 'Inactive', 'Blocked'],
-        default: 'Active',
+        enum: ['active', 'inactive', 'blocked'],
+        default: 'active',
+    },
+    notificationPreferences: {
+        emailNotifications: { type: Boolean, default: true },
+        smsNotifications: { type: Boolean, default: false },
+        marketingEmails: { type: Boolean, default: true },
+        orderUpdates: { type: Boolean, default: true },
     },
     createdAt: {
         type: Date,

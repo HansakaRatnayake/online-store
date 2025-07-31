@@ -18,7 +18,7 @@ export default function RelatedProducts({ productId }: RelatedProductsProps) {
   const [relatedProducts, setRelatedProducts] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { addItem } = useCart()
+  const { addToCart } = useCart()
   const { toast } = useToast()
 
   useEffect(() => {
@@ -51,13 +51,18 @@ export default function RelatedProducts({ productId }: RelatedProductsProps) {
   }, [productId]);
 
   const handleAddToCart = (product: any) => {
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      quantity: 1,
-    });
+    addToCart(
+        {
+          id: product.id.toString(), // Cast number to string to match CartItem
+          name: product.name,
+          price: product.price,
+          image: product.image,
+          category: product.category,
+          brand: product.brand,
+          shipping: product.shipping,
+        },
+        1 // Pass quantity as second argument
+    );
     toast({
       title: "Added to cart",
       description: `${product.name} has been added to your cart.`,

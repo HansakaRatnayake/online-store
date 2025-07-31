@@ -260,7 +260,7 @@ export default function MyOrders() {
                 <div className="space-y-4">
                     {filteredOrders.map((order) => (
                         <OrderCard
-                            key={order.id}
+                            key={order.id + Math.random()}
                             order={order}
                             onViewDetails={setSelectedOrder}
                             getStatusIcon={getStatusIcon}
