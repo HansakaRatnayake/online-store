@@ -47,7 +47,7 @@ const OrderSchema: Schema = new Schema({
             name: { type: String, required: true },
             price: { type: Number, required: true },
             quantity: { type: Number, required: true },
-            image: { type: String },
+            image: { type: { data: Buffer, contentType: String } },
             category: { type: String, default: "General" },
             brand: { type: String, default: "Generic" },
             shipping: {

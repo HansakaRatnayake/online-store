@@ -259,8 +259,16 @@ router.get("/my-orders", authenticate, isCustomer, async (req: Request, res: Res
 
         const total = await Order.countDocuments(query);
 
+        const ordersWithBase64Images:any = orders.map((odr) => ({
+            ...odr,
+            items: odr.items.map((itm:any) => ({
+                ...itm,
+                image: itm.image?.data ? `data:${itm.image.contentType};base64,${itm.image.data.toString("base64")}`: "/placeholder.svg",
+            }))
+        }));
+
         res.json({
-            orders: orders.map(order => ({
+            orders: ordersWithBase64Images.map((order:any) => ({
                 _id: order._id.toString(),
                 orderNumber: order.orderNumber,
                 userId: order.userId,
