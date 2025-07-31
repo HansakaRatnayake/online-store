@@ -32,6 +32,7 @@ import LoadingSpinner from '@/components/ui/loading-spinner';
 import LogoutDialog from '@/components/ui/logout-dialog';
 
 const navigation = [
+
   { name: 'Dashboard', href: '/admin', icon: BarChart3 },
   { name: 'Products', href: '/admin/products', icon: Package },
   { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
@@ -122,6 +123,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               {navigation.map((item) => {
                 const isActive = pathname === item.href;
                 return (
+
                     <Link
                         key={item.name}
                         href={item.href}
@@ -134,6 +136,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       {/*{item.badge && <Badge className="ml-auto bg-red-500 text-white">{item.badge}</Badge>}*/}
                     </Link>
                 );
+
               })}
             </nav>
           </div>
@@ -146,6 +149,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
               <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(true)}>
                 <Menu className="w-5 h-5" />
+
               </Button>
 
               <div className="flex items-center space-x-4 ml-auto">

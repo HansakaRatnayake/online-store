@@ -21,6 +21,7 @@ import { Search, Eye, Mail, Phone, MapPin, ShoppingBag, Calendar, Ban, CheckCirc
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "../providers/auth-provider"
 
+
 export default function CustomersManagement() {
   const [customers, setCustomers] = useState<any[]>([])
   const [searchTerm, setSearchTerm] = useState("")
@@ -39,6 +40,7 @@ export default function CustomersManagement() {
     blocked: 0,
     totalRevenue: 0,
   })
+
 
   useEffect(() => {
     if (!token) {
@@ -60,6 +62,7 @@ export default function CustomersManagement() {
         }).toString()
 
         const customerResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/customers?${query}`, {
+
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -68,10 +71,12 @@ export default function CustomersManagement() {
         })
         if (!customerResponse.ok) {
           throw new Error("Failed to fetch customers")
+
         }
         const customerData = await customerResponse.json()
         setCustomers(customerData.users)
         setTotalPages(customerData.totalPages)
+
 
         // Fetch stats
         const statsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/customers/stats`, {
@@ -87,6 +92,7 @@ export default function CustomersManagement() {
         const statsData = await statsResponse.json()
         setCustomerStats(statsData)
 
+
         setIsLoading(false)
       } catch (err: any) {
         setError(err.message || "Error fetching data")
@@ -95,15 +101,18 @@ export default function CustomersManagement() {
       }
     }
 
+
     fetchData()
   }, [page, token, searchTerm, statusFilter])
 
   const handleStatusUpdate = async (customerId: string, newStatus: string) => {
     try {
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${customerId}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
+
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ status: newStatus }),
@@ -204,15 +213,16 @@ export default function CustomersManagement() {
         variant: "destructive",
       })
     }
+
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "active":
+      case "Active":
         return "bg-green-100 text-green-800"
-      case "inactive":
+      case "Inactive":
         return "bg-gray-100 text-gray-800"
-      case "blocked":
+      case "Blocked":
         return "bg-red-100 text-red-800"
       default:
         return "bg-gray-100 text-gray-800"
@@ -221,12 +231,12 @@ export default function CustomersManagement() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "active":
+      case "Active":
         return <CheckCircle className="w-3 h-3" />
-      case "blocked":
+      case "Blocked":
         return <Ban className="w-3 h-3" />
       default:
-        return null
+        return <Ban className="w-3 h-3" />
     }
   }
 
@@ -239,6 +249,7 @@ export default function CustomersManagement() {
   }
 
   return (
+
       <div className="space-y-6">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -284,6 +295,7 @@ export default function CustomersManagement() {
           </Card>
         </div>
 
+
         {/* Customers Management */}
         <Card>
           <CardHeader>
@@ -313,6 +325,7 @@ export default function CustomersManagement() {
                 </SelectContent>
               </Select>
             </div>
+
 
             {/* Customers Table */}
             <div className="border rounded-lg">
@@ -558,5 +571,6 @@ export default function CustomersManagement() {
           </CardContent>
         </Card>
       </div>
+
   )
 }

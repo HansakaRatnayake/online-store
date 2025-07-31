@@ -105,10 +105,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setUser(null);
     setToken(null);
+
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     document.cookie = 'token=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0';
     router.push('/login');
+
   };
 
   return (

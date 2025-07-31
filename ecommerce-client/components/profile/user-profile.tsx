@@ -28,6 +28,7 @@ export default function UserProfile() {
   const { toast } = useToast()
 
   const [profile, setProfile] = useState({
+
     id: "",
     name: "",
     email: "",
@@ -47,6 +48,7 @@ export default function UserProfile() {
     },
     avatar: null as string | null,
     createdAt: "",
+
   })
   const [passwords, setPasswords] = useState({
     currentPassword: "",
@@ -274,6 +276,7 @@ export default function UserProfile() {
   if (error) return <div className="text-red-600">{error}</div>
 
   return (
+
       <div className="space-y-6">
         {/* Profile Header */}
         <Card>
@@ -323,6 +326,7 @@ export default function UserProfile() {
                         </label>
                       </div>
                       <Button onClick={handleAvatarUpload} disabled={!avatarFile}>Upload Picture</Button>
+
                     </div>
                   </DialogContent>
                 </Dialog>

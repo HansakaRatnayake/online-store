@@ -34,16 +34,21 @@ router.post('/register', async (req, res) => {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        //get Random Avatar
+        const profileImage = `https://api.dicebear.com/9.x/adventurer/svg?seed=${name}`;
+
         // Create new user
         const newUser = new User({
             name,
             email,
             password: hashedPassword,
             role: 'customer',
+
             avatar: avatar || '/placeholder.svg?height=40&width=40',
             mobileNo,
             address,
             status: 'active',
+
         });
 
         await newUser.save();
