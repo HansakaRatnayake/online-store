@@ -66,9 +66,9 @@ export default function Header() {
                         <Link href="/categories" className="text-gray-700 hover:text-blue-600 transition-colors">
                             Categories
                         </Link>
-                        <Link href="/deals" className="text-gray-700 hover:text-blue-600 transition-colors">
-                            Deals
-                        </Link>
+                        {/*<Link href="/deals" className="text-gray-700 hover:text-blue-600 transition-colors">*/}
+                        {/*    Deals*/}
+                        {/*</Link>*/}
                     </nav>
 
                     <div className="flex items-center space-x-4">

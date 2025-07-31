@@ -38,14 +38,14 @@ export default function HeroSection() {
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
               </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white text-white hover:bg-white hover:text-blue-600 bg-transparent"
-                asChild
-              >
-                <Link href="/deals">View Deals</Link>
-              </Button>
+              {/*<Button*/}
+              {/*  size="lg"*/}
+              {/*  variant="outline"*/}
+              {/*  className="border-white text-white hover:bg-white hover:text-blue-600 bg-transparent"*/}
+              {/*  asChild*/}
+              {/*>*/}
+              {/*  <Link href="/deals">View Deals</Link>*/}
+              {/*</Button>*/}
             </div>
 
             <div className="grid grid-cols-3 gap-8 pt-8">

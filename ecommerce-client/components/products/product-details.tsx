@@ -25,7 +25,7 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
   const [quantity, setQuantity] = useState(1)
   const [isWishlisted, setIsWishlisted] = useState(false)
 
-  const { addItem } = useCart()
+  const { addToCart } = useCart()
   const { toast } = useToast()
 
   useEffect(() => {
@@ -57,13 +57,16 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
   const handleAddToCart = () => {
     if (!product) return
 
-    addItem({
-      id: product.id,
+    addToCart({
+      id: product.id.toString(),
       name: product.name,
       price: product.price,
       image: product.images[0],
-      quantity: quantity,
-    })
+      category: product.category,
+      brand: product.brand,
+      shipping: product.shipping,
+
+    },quantity);
 
     toast({
       title: "Added to cart",

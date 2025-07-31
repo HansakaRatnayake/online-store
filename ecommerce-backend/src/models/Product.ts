@@ -7,8 +7,8 @@ const productSchema = new Schema({
     originalPrice: Number,
     rating: Number,
     reviews: Number,
-    image: String,
-    images: [String],
+    image: { data: Buffer, contentType: String }, // Primary image as binary
+    images: [{ data: Buffer, contentType: String }], // Array of images as binary
     badge: String,
     category: String,
     brand: String,
