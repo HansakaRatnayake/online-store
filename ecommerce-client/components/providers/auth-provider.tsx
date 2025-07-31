@@ -24,15 +24,17 @@ interface AuthContextType {
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const initialToken = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+  const initialUser = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+
+  const [user, setUser] = useState<User | null>(initialUser ? JSON.parse(initialUser) : null);
+  const [token, setToken] = useState<string | null>(initialToken);
+  const [isLoading, setIsLoading] = useState(false); // No need for initial loading state
   const router = useRouter();
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     const storedToken = localStorage.getItem('token');
-
     if (storedUser && storedToken) {
       setUser(JSON.parse(storedUser));
       setToken(storedToken);

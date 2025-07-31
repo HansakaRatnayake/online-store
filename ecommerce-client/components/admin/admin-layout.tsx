@@ -34,10 +34,11 @@ import LogoutDialog from '@/components/ui/logout-dialog';
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: BarChart3 },
   { name: 'Products', href: '/admin/products', icon: Package },
-  { name: 'Orders', href: '/admin/orders', icon: ShoppingCart, badge: '12' },
+  { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
+  // { name: 'Orders', href: '/admin/orders', icon: ShoppingCart, badge: '12' },
   { name: 'Customers', href: '/admin/customers', icon: Users },
-  { name: 'Analytics', href: '/admin/analytics', icon: TrendingUp },
-  { name: 'Settings', href: '/admin/settings', icon: Settings },
+  // { name: 'Analytics', href: '/admin/analytics', icon: TrendingUp },
+  // { name: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -97,7 +98,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         >
                           <item.icon className="w-5 h-5 mr-3" />
                           {item.name}
-                          {item.badge && <Badge className="ml-auto bg-red-500 text-white">{item.badge}</Badge>}
+                          {/*{item.badge && <Badge className="ml-auto bg-red-500 text-white">{item.badge}</Badge>}*/}
                         </Link>
                     );
                   })}
@@ -130,7 +131,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     >
                       <item.icon className="w-5 h-5 mr-3" />
                       {item.name}
-                      {item.badge && <Badge className="ml-auto bg-red-500 text-white">{item.badge}</Badge>}
+                      {/*{item.badge && <Badge className="ml-auto bg-red-500 text-white">{item.badge}</Badge>}*/}
                     </Link>
                 );
               })}
@@ -154,12 +155,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   </Link>
                 </Button>
 
-                <Button variant="ghost" size="icon" className="relative">
-                  <Bell className="w-5 h-5" />
-                  <Badge className="absolute -top-1 -right-1 w-5 h-5 rounded-full p-0 flex items-center justify-center text-xs">
-                    3
-                  </Badge>
-                </Button>
+                {/*<Button variant="ghost" size="icon" className="relative">*/}
+                {/*  <Bell className="w-5 h-5" />*/}
+                {/*  <Badge className="absolute -top-1 -right-1 w-5 h-5 rounded-full p-0 flex items-center justify-center text-xs">*/}
+                {/*    3*/}
+                {/*  </Badge>*/}
+                {/*</Button>*/}
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
