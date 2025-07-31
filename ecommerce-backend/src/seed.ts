@@ -511,9 +511,9 @@ async function seed() {
     try {
         await connectToDatabase();
         await seedAdmin();
-        await Product.deleteMany({});
-        await Product.insertMany(products);
-        console.log("Product seeded successfully");
+        // await Product.deleteMany({});
+        // await Product.insertMany(products);
+        // console.log("Product seeded successfully");
 
         await Category.deleteMany({});
         await Category.insertMany(categories);
