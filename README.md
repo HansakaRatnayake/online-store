@@ -40,10 +40,6 @@ Install Server Dependancies
 To run this project, you will need to add the following environment variables to your .env file
 in **Server Side**
 
-`API_KEY`
-
-`ANOTHER_API_KEY`
-
 `MONGODB_URI`=`mongodb://localhost:27017/ecommerce`
 
 `PORT`=`5000`
