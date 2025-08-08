@@ -444,5 +444,44 @@ router.get("/status-count", async (req: Request, res: Response) => {
     }
 });
 
+// POST /api/users/forgot-password
+router.post("/forgotpassword", async (req: Request, res: Response) => {
+
+
+    try {
+        await connectToDatabase();
+
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ error: "Email is required" });
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ error: "User with this email does not exist" });
+        }
+
+        // Generate a new random password (8 chars)
+        const newPassword = Math.random().toString(36).slice(-8);
+
+        // Hash and save the new password
+        user.password = await bcrypt.hash(newPassword, 10);
+        await user.save();
+
+        // Send email with the new password
+        await sendEmail(
+            user.email,
+            "Password Reset",
+            "",
+            generatePasswordResetEmail(user.name, newPassword)
+        );
+
+        res.json({ message: "New password sent to your email" });
+    } catch (error) {
+        console.error("Error in forgot-password:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 
 export default router;
