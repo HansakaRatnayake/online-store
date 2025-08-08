@@ -347,7 +347,7 @@ export default function OrdersManagement() {
                               <SelectItem value="processing">Processing</SelectItem>
                               <SelectItem value="shipped">Shipped</SelectItem>
                               <SelectItem value="delivered">Delivered</SelectItem>
-                              <SelectItem value="cancelledd">Cancelled</SelectItem>
+                              <SelectItem value="cancelled">Cancelled</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>

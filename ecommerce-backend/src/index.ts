@@ -11,6 +11,7 @@ import paymentRoutes from "./routes/payment";
 import cartRoutes from "./routes/cart";
 import wishlistRoutes from "./routes/wishlist";
 import userRoutes from "./routes/user";
+import newsletterRoutes from "./routes/newsletter";
 import connectToDatabase from "@/utils/mongodb";
 
 
@@ -36,6 +37,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/subscribetonewsletter", newsletterRoutes);
 
 
 app.listen(PORT, () => {

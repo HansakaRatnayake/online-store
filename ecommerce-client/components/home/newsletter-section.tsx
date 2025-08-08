@@ -17,6 +17,14 @@ export default function NewsletterSection() {
     e.preventDefault()
     if (!email) return
 
+    const formData = new FormData()
+    formData.append("email", email)
+
+    const response = await fetch("http://localhost:5000/api/subscribetonewsletter", {
+      method: "POST",
+      body: formData,
+    })
+
     // Simulate API call
     setTimeout(() => {
       setIsSubscribed(true)
