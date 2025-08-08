@@ -458,4 +458,16 @@ const generateOrderNumber = () => {
     return `ORD-${now}-${random}`;
 };
 
+// GET /api/orders/count - Get total number of orders (admin only)
+router.get("/count", authenticate, isAdmin, async (req: Request, res: Response) => {
+    try {
+        await connectToDatabase();
+        const totalOrders = await Order.countDocuments();
+        res.json({ totalOrders });
+    } catch (error) {
+        console.error("Error fetching order count:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 export default router;
