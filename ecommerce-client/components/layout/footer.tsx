@@ -53,16 +53,16 @@ export default function Footer() {
                   FAQ
                 </Link>
               </li>
-              <li>
-                <Link href="/shipping" className="text-gray-400 hover:text-white transition-colors">
-                  Shipping Info
-                </Link>
-              </li>
-              <li>
-                <Link href="/returns" className="text-gray-400 hover:text-white transition-colors">
-                  Returns
-                </Link>
-              </li>
+              {/*<li>*/}
+              {/*  <Link href="/shipping" className="text-gray-400 hover:text-white transition-colors">*/}
+              {/*    Shipping Info*/}
+              {/*  </Link>*/}
+              {/*</li>*/}
+              {/*<li>*/}
+              {/*  <Link href="/returns" className="text-gray-400 hover:text-white transition-colors">*/}
+              {/*    Returns*/}
+              {/*  </Link>*/}
+              {/*</li>*/}
             </ul>
           </div>
 
@@ -70,21 +70,21 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Customer Service</h3>
             <ul className="space-y-2">
+              {/*<li>*/}
+              {/*  <Link href="/support" className="text-gray-400 hover:text-white transition-colors">*/}
+              {/*    Help Center*/}
+              {/*  </Link>*/}
+              {/*</li>*/}
               <li>
-                <Link href="/support" className="text-gray-400 hover:text-white transition-colors">
-                  Help Center
-                </Link>
-              </li>
-              <li>
-                <Link href="/track-order" className="text-gray-400 hover:text-white transition-colors">
+                <Link href="/orders" className="text-gray-400 hover:text-white transition-colors">
                   Track Order
                 </Link>
               </li>
-              <li>
-                <Link href="/size-guide" className="text-gray-400 hover:text-white transition-colors">
-                  Size Guide
-                </Link>
-              </li>
+              {/*<li>*/}
+              {/*  <Link href="/size-guide" className="text-gray-400 hover:text-white transition-colors">*/}
+              {/*    Size Guide*/}
+              {/*  </Link>*/}
+              {/*</li>*/}
               <li>
                 <Link href="/privacypolicy" className="text-gray-400 hover:text-white transition-colors">
                   Privacy Policy

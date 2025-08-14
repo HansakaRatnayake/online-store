@@ -55,7 +55,7 @@ const AboutUs = () => {
                 <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-20">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="text-center">
-                            <h1 className="text-4xl md:text-6xl font-bold mb-6">About ShopHub</h1>
+                            <h1 className="text-4xl md:text-6xl font-bold mb-6">About SmartCart</h1>
                             <p className="text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed">
                                 Connecting customers with quality products and exceptional service since 2015
                             </p>
@@ -71,7 +71,7 @@ const AboutUs = () => {
                                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Our Story</h2>
                                 <div className="space-y-4 text-gray-600 leading-relaxed">
                                     <p>
-                                        Founded in 2015, ShopHub began as a small startup with a big vision: to create
+                                        Founded in 2015, SmartCart began as a small startup with a big vision: to create
                                         an e-commerce platform that truly puts customers first. What started as a team
                                         of five passionate individuals has grown into a trusted marketplace serving
                                         millions of customers worldwide.

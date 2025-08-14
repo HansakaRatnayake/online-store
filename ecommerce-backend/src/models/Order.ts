@@ -13,7 +13,10 @@ export interface IOrder extends Document {
         name: string;
         price: number;
         quantity: number;
-        image: string;
+        image: {
+            data: Buffer;
+            contentType: string;
+        };
         category: string;
         brand: string;
         shipping: { free: boolean; estimatedDays: string };
@@ -47,7 +50,10 @@ const OrderSchema: Schema = new Schema({
             name: { type: String, required: true },
             price: { type: Number, required: true },
             quantity: { type: Number, required: true },
-            image: { type: { data: Buffer, contentType: String } },
+            image: {
+                data: { type: Buffer },
+                contentType: { type: String },
+            },
             category: { type: String, default: "General" },
             brand: { type: String, default: "Generic" },
             shipping: {
