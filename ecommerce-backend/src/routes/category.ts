@@ -16,6 +16,30 @@ router.get("/", async (req: Request, res: Response) => {
     }
 });
 
+router.get("/by-cName/:name", async (req: Request, res: Response) => {
+
+    let cName = '';
+    switch (req.params.name) {
+        case "electronics": cName = "Electronics";break;
+        case "fashion": cName = "Fashion";break;
+        case "home-garden": cName = "Home & Garden";break;
+        case "beauty": cName = "Beauty & Personal Care";break;
+        case "sports": cName = "Sports & Outdoors";break;
+        case "books": cName = "Books & Media";break;
+        case "automotive": cName = "Automotive";break;
+        case "baby-kids": cName = "Baby & Kids";break;
+    }
+
+    try {
+        await connectToDatabase();
+        const category = await Category.findOne({name:cName}).lean();
+        res.json(category);
+    } catch (error) {
+        console.error("Error fetching categories:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 // GET /api/categories/:id - Get a single category by ID
 router.get("/:id", async (req: Request, res: Response) => {
     try {

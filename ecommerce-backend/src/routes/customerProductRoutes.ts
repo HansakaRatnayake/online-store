@@ -83,7 +83,7 @@ router.get("/", async (req: Request, res: Response) => {
             image: product.image?.data
                 ? `data:${product.image.contentType};base64,${product.image.data.toString("base64")}`
                 : "/placeholder.svg",
-            images: product.images?.map((img) =>
+            images: product.images?.map((img:any) =>
                 img.data ? `data:${img.contentType};base64,${img.data.toString("base64")}` : "/placeholder.svg"
             ) || ["/placeholder.svg"],
         }));

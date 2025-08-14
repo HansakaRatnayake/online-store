@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation";
+
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -53,6 +55,8 @@ interface ProductFiltersProps {
 
 export default function ProductFilters({ filters, setFilters }: ProductFiltersProps) {
   const [categories, setCategories] = useState<Category[]>([])
+  const router = useRouter();
+
 
   useEffect(() => {
     async function fetchCategories() {
@@ -118,6 +122,8 @@ export default function ProductFilters({ filters, setFilters }: ProductFiltersPr
       priceRange: [0, 1000],
       rating: [0],
     })
+
+    router.push("/products");
   }
 
   const activeFiltersCount = filters.categories.length + filters.brands.length + filters.colors.length

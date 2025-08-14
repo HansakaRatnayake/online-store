@@ -8,6 +8,7 @@ import ProductGrid from "@/components/products/product-grid"
 import LoadingSpinner from "@/components/ui/loading-spinner"
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
+import {useSearchParams} from "next/navigation";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([])
@@ -23,6 +24,10 @@ export default function ProductsPage() {
   })
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+
+  const searchParams = useSearchParams();
+  const category :any = searchParams.get("category");
+  const [currentCategory, setCurrentCategory] = useState(category);
 
   useEffect(() => {
 
@@ -62,6 +67,46 @@ export default function ProductsPage() {
     const debounce = setTimeout(fetchProducts, 500) // Debounce search input
     return () => clearTimeout(debounce)
   }, [searchTerm, filters, page])
+
+  useEffect(() => {
+    console.log(category)
+
+    async function fetchCategory(){
+      try {
+        setIsLoading(true)
+
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/categories/by-cName/${category}`)
+        if (!res.ok) throw new Error("Failed to fetch categories")
+        const data = await res.json()
+
+        console.log(data)
+        setIsLoading(false)
+
+        setFilters({
+          categories: [...filters.categories,data.name] as string[],
+          brands: [] as string[],
+          colors: [] as string[],
+          priceRange: [0, 1000] as [number, number],
+          rating: [0] as [number],
+        })
+      } catch (err) {
+        setError("Error fetching category")
+        setIsLoading(false)
+        console.error(err)
+      }
+    }
+
+    setCurrentCategory(category || "all"); // handle null
+
+    let debounce : any;
+    if (category != null){
+      debounce = setTimeout(fetchCategory, 500) // Debounce search input
+
+    }
+
+    return () => clearTimeout(debounce)
+
+  }, [category]); // runs whenever category changes, even if null
 
   if (isLoading) {
     return (

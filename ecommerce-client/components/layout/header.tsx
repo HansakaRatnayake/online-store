@@ -46,15 +46,15 @@ export default function Header() {
                     <div className="hidden md:flex flex-1 max-w-lg mx-8">
                         <form onSubmit={handleSearch} className="w-full">
                             <div className="relative">
-                                <Search
-                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"/>
-                                <Input
-                                    type="text"
-                                    placeholder="Search products..."
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="pl-10 pr-4 w-full"
-                                />
+                                {/*<Search*/}
+                                {/*    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"/>*/}
+                                {/*<Input*/}
+                                {/*    type="text"*/}
+                                {/*    placeholder="Search products..."*/}
+                                {/*    value={searchQuery}*/}
+                                {/*    onChange={(e) => setSearchQuery(e.target.value)}*/}
+                                {/*    className="pl-10 pr-4 w-full"*/}
+                                {/*/>*/}
                             </div>
                         </form>
                     </div>
